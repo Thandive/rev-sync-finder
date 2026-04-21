@@ -221,15 +221,33 @@ const Index = () => {
       </main>
 
       <footer className="border-t border-border mt-16">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-          <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
-            Built by a Revenue & Billing Operations professional with 8+ years in B2B SaaS. Reflects real patterns
-            from Quote-to-Cash audits.
-          </p>
-          <div className="flex gap-5 text-xs">
-            <a href="#" className="text-foreground hover:text-primary transition-colors">LinkedIn</a>
-            <a href="#" className="text-foreground hover:text-primary transition-colors">View Portfolio</a>
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+            <p className="text-xs text-foreground max-w-xl leading-relaxed">
+              Built by Thandive Sila. · Revenue & Billing Operations · 8+ years in B2B SaaS
+            </p>
+            <div className="flex gap-5 text-xs">
+              <a
+                href="https://www.linkedin.com/in/thandive"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground hover:text-primary transition-colors"
+              >
+                LinkedIn
+              </a>
+              <a
+                href="https://www.revenue.thandive.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground hover:text-primary transition-colors"
+              >
+                View Portfolio
+              </a>
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Estimates are indicative only and based on industry benchmarks. Not financial advice.
+          </p>
         </div>
       </footer>
     </div>
