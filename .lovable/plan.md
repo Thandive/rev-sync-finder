@@ -1,31 +1,33 @@
 
 
-## Update Footer Content
+## Add Cookie Notice Banner
 
-Edit the footer in `src/pages/Index.tsx` to replace the existing text and links with the new copy and real URLs.
+Add a lightweight, dismissible cookie notice that appears at the bottom of the page on first visit and remembers the user's choice via `localStorage`.
 
-### New footer structure
+### What the user will see
 
-- **Line 1 (attribution):** "Built by Thandive Sila. · Revenue & Billing Operations · 8+ years in B2B SaaS"
-- **Links row:**
-  - LinkedIn → `https://www.linkedin.com/in/thandive` (opens in new tab)
-  - Portfolio → `https://www.revenue.thandive.com` (opens in new tab)
-- **Line 2 (disclaimer, smaller/muted):** "Estimates are indicative only and based on industry benchmarks. Not financial advice."
-
-### Layout
-
-Keep the existing two-part footer layout (text left, links right on desktop; stacked on mobile). Add the disclaimer as a third row spanning the full width below both, in muted small text, to keep it visually distinct from the attribution.
+- On first visit, a slim banner slides in at the bottom of the viewport.
+- Banner text: "We use only essential cookies to remember your preferences. No tracking, no analytics, no data stored on our servers."
+- Two actions: **Accept** (primary, electric green) and **Decline** (ghost button).
+- Either choice dismisses the banner and persists the decision — banner does not reappear on future visits.
+- Styled to match the existing clinical dark aesthetic (bg `#0a0a0a`, border, mono-tabular accent text).
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ Built by Thandive Sila. · Revenue & ...   [LinkedIn] [Portfolio] │
-│ Estimates are indicative only and based on ... Not financial advice. │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  We use only essential cookies...        [Decline] [Accept]  │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+### Note on accuracy
+
+The current footer says "No cookies. No data stored." Since this banner introduces a `localStorage` entry (technically client-side storage, not a cookie, but commonly disclosed), the footer line will be softened to: "No tracking. No backend. All calculations run client-side."
 
 ### Technical details
 
-- File touched: `src/pages/Index.tsx` (footer block only).
-- Links use `target="_blank"` and `rel="noopener noreferrer"` since they point to external sites.
-- Reuse existing Tailwind classes (`text-xs`, `text-muted-foreground`, `hover:text-primary`) for visual consistency — no new styles or dependencies.
+- **New file:** `src/components/CookieNotice.tsx` — a self-contained component using `useState` + `useEffect` to read/write `localStorage` key `revsync-cookie-consent` (`"accepted" | "declined"`).
+- **Mount point:** Rendered once inside `src/pages/Index.tsx` at the end of the root `div`, fixed-positioned at `bottom-0` with `z-50`.
+- **Styling:** Tailwind only — `fixed bottom-4 left-4 right-4 md:left-auto md:max-w-xl`, existing `border-border`, `bg-background`, `text-foreground`, primary button reuses the green accent.
+- **Animation:** Subtle fade-in via the existing `fade-in` class — consistent with the "no animations except subtle fade-in" rule.
+- **Footer copy update:** One-line change in `src/pages/Index.tsx` footer disclaimer area.
+- No new dependencies. No backend. No third-party cookie service.
 
