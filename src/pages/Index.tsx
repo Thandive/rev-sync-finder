@@ -72,7 +72,17 @@ const Index = () => {
       <header className="border-b border-border">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-2 w-2 rounded-full bg-primary" />
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <circle cx="9" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" />
+              <circle cx="15" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.6" />
+            </svg>
             <span className="font-semibold tracking-tight">Rev-Sync</span>
             <span className="hidden sm:inline text-xs text-muted-foreground ml-2">Revenue Leakage Calculator</span>
           </div>
