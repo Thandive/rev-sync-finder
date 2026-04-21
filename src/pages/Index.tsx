@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { ResultsPanel } from "@/components/ResultsPanel";
+import { CookieNotice } from "@/components/CookieNotice";
 import {
   ARR_MAX,
   ARR_MIN,
@@ -260,6 +261,7 @@ const Index = () => {
           </p>
         </div>
       </footer>
+      <CookieNotice />
     </div>
   );
 };
