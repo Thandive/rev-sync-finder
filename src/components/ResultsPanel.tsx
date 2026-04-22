@@ -85,7 +85,8 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
     <div className="space-y-6">
       {/* HERO — Risk Score */}
       <div
-        className={`border rounded-sm p-6 md:p-8 ${rs.bg} border-[hsl(var(--${riskScoreVar(riskScore)}))]/30 ${riskScore === "CRITICAL" ? "pulse-critical" : ""}`}
+        className={`border rounded-sm p-6 md:p-8 ${rs.bg} ${riskScore === "CRITICAL" ? "pulse-critical" : ""}`}
+        style={{ borderColor: `hsl(var(--${riskScoreVar(riskScore)}) / 0.35)` }}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
