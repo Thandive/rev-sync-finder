@@ -104,3 +104,50 @@ export function arrToSlider(arr: number): number {
   const maxLog = Math.log10(ARR_MAX);
   return ((Math.log10(arr) - minLog) / (maxLog - minLog)) * 100;
 }
+
+// Industry benchmarks (B2B SaaS, indicative) — fraction of ARR per leakage category
+export const BENCHMARK_PCT = {
+  billingDelay: 0.012,
+  uninvoiced: 0.008,
+  discrepancies: 0.006,
+  dataQuality: 0.009,
+  manualProcess: 0.005,
+} as const;
+
+export function getBenchmarks(arr: number) {
+  return {
+    billingDelay: arr * BENCHMARK_PCT.billingDelay,
+    uninvoiced: arr * BENCHMARK_PCT.uninvoiced,
+    discrepancies: arr * BENCHMARK_PCT.discrepancies,
+    dataQuality: arr * BENCHMARK_PCT.dataQuality,
+    manualProcess: arr * BENCHMARK_PCT.manualProcess,
+  };
+}
+
+export type LeakageCategoryKey =
+  | "billingDelay"
+  | "uninvoiced"
+  | "discrepancies"
+  | "dataQuality"
+  | "manualProcess";
+
+export const RECOMMENDATIONS: Record<LeakageCategoryKey, string> = {
+  billingDelay:
+    "Prioritise automating invoice triggers at deal close in your CRM to reduce time-to-bill.",
+  uninvoiced:
+    "Audit your CRM-to-billing handover protocol and implement validation rules that block deal closure without a linked invoice.",
+  discrepancies:
+    "Introduce automated reconciliation between your CRM and ERP to catch value mismatches before billing runs.",
+  dataQuality:
+    "Enforce required-field rules and scheduled CRM hygiene sweeps so billing fires against accurate customer and amount data.",
+  manualProcess:
+    "Reduce manual reconciliation hours by deploying a scheduled CRM↔ERP sync with exception-based review.",
+};
+
+export const CATEGORY_LABELS: Record<LeakageCategoryKey, string> = {
+  billingDelay: "Billing Delay",
+  uninvoiced: "Uninvoiced Deals",
+  discrepancies: "Discrepancies",
+  dataQuality: "Data Quality",
+  manualProcess: "Manual Recon Cost",
+};
