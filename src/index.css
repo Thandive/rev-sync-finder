@@ -115,13 +115,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "ss01", "cv11";
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-feature-settings: "calt" 1, "zero" 1, "ss01" 1;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Clinical mono for numbers */
   .font-mono-tabular {
     font-variant-numeric: tabular-nums;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 }
 
@@ -135,10 +137,10 @@ All colors MUST be HSL.
   }
 
   .pulse-critical {
-    animation: pulseCritical 2s ease-in-out infinite;
+    animation: pulseCritical 2.4s ease-in-out infinite;
   }
   @keyframes pulseCritical {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--risk-critical) / 0.45); }
-    50% { box-shadow: 0 0 24px 6px hsl(var(--risk-critical) / 0.35); }
+    0%, 100% { border-color: hsl(var(--risk-critical) / 0.55); box-shadow: 0 0 18px hsl(var(--risk-critical) / 0.18); }
+    50%      { border-color: hsl(var(--risk-critical) / 1);    box-shadow: 0 0 28px hsl(var(--risk-critical) / 0.32); }
   }
 }
