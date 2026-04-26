@@ -1,4 +1,3 @@
-import { Download, FileText } from "lucide-react";
 import {
   CalculatorInputs,
   CalculatorResults,
@@ -17,11 +16,11 @@ interface Props {
   showBenchmarks: boolean;
 }
 
-const riskStyles: Record<CalculatorResults["riskScore"], { bg: string; text: string; dot: string }> = {
-  LOW: { bg: "bg-[hsl(var(--risk-low))]/10", text: "text-[hsl(var(--risk-low))]", dot: "bg-[hsl(var(--risk-low))]" },
-  MEDIUM: { bg: "bg-[hsl(var(--risk-medium))]/10", text: "text-[hsl(var(--risk-medium))]", dot: "bg-[hsl(var(--risk-medium))]" },
-  HIGH: { bg: "bg-[hsl(var(--risk-high))]/10", text: "text-[hsl(var(--risk-high))]", dot: "bg-[hsl(var(--risk-high))]" },
-  CRITICAL: { bg: "bg-[hsl(var(--risk-critical))]/10", text: "text-[hsl(var(--risk-critical))]", dot: "bg-[hsl(var(--risk-critical))]" },
+const riskStyles: Record<CalculatorResults["riskScore"], { text: string; dot: string; border: string }> = {
+  LOW:      { text: "text-[hsl(var(--risk-low))]",      dot: "bg-[hsl(var(--risk-low))]",      border: "border-[hsl(var(--risk-low))]/50" },
+  MEDIUM:   { text: "text-[hsl(var(--risk-medium))]",   dot: "bg-[hsl(var(--risk-medium))]",   border: "border-[hsl(var(--risk-medium))]/50" },
+  HIGH:     { text: "text-[hsl(var(--risk-high))]",     dot: "bg-[hsl(var(--risk-high))]",     border: "border-[hsl(var(--risk-high))]/55" },
+  CRITICAL: { text: "text-[hsl(var(--risk-critical))]", dot: "bg-[hsl(var(--risk-critical))]", border: "border-[hsl(var(--risk-critical))]/70" },
 };
 
 const scoreMeaning: Record<CalculatorResults["riskScore"], string> = {
@@ -31,17 +30,18 @@ const scoreMeaning: Record<CalculatorResults["riskScore"], string> = {
   CRITICAL: "Severe leakage. The cost of inaction compounds every billing cycle.",
 };
 
-function MetricCard({ icon, label, value, accent = false }: { icon: string; label: string; value: number; accent?: boolean }) {
+function MetricCard({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className="border border-border bg-card p-5 rounded-sm">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-        <span>{icon}</span>
-        <span>{label}</span>
+    <div className="border border-border-faint bg-card p-5 rounded-none">
+      <div className="text-[10px] uppercase tracking-[0.18em] text-label-low">
+        {label}
       </div>
-      <div className={`mt-3 font-mono-tabular font-semibold ${accent ? "text-primary text-3xl md:text-4xl" : "text-foreground text-2xl"}`}>
+      <div className={`mt-3 font-mono font-semibold text-primary ${accent ? "text-3xl md:text-4xl" : "text-2xl"}`}>
         {formatEUR(value)}
       </div>
-      <div className="mt-1 text-[11px] text-muted-foreground font-mono-tabular">{formatEURExact(value)} / yr</div>
+      <div className="mt-1 text-[10px] text-label font-mono-tabular uppercase tracking-[0.12em]">
+        {formatEURExact(value)} / yr
+      </div>
     </div>
   );
 }
@@ -85,55 +85,65 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
     <div className="space-y-6">
       {/* HERO — Risk Score */}
       <div
-        className={`border rounded-sm p-6 md:p-8 ${rs.bg} ${riskScore === "CRITICAL" ? "pulse-critical" : ""}`}
-        style={{ borderColor: `hsl(var(--${riskScoreVar(riskScore)}) / 0.35)` }}
+        className={`border-2 ${rs.border} bg-card rounded-none p-6 md:p-7 ${
+          riskScore === "CRITICAL" ? "pulse-critical" : ""
+        }`}
+        style={
+          riskScore === "CRITICAL"
+            ? { boxShadow: "0 0 20px hsl(var(--risk-critical) / 0.25)" }
+            : undefined
+        }
       >
         <div className="flex items-center justify-between mb-4">
-          <div className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+          <div className="text-[10px] uppercase tracking-[0.25em] text-label-low">
             Revenue Risk Score
           </div>
-          <div className="text-[11px] font-mono-tabular text-muted-foreground">
+          <div className="text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.15em]">
             {(riskRatio * 100).toFixed(2)}% of ARR
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`h-3 w-3 rounded-full ${rs.dot}`} />
-          <span className={`text-4xl md:text-5xl font-bold tracking-tight ${rs.text}`}>
+          <span className={`h-2.5 w-2.5 ${rs.dot}`} />
+          <span className={`text-5xl md:text-6xl font-bold tracking-tight font-mono ${rs.text}`}>
             {riskScore}
           </span>
         </div>
-        <div className="mt-2 text-xs font-mono-tabular text-muted-foreground">
-          Total at risk · <span className="text-foreground">{formatEURExact(totalAtRisk)}</span> / yr
+        <div className="mt-3 text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.18em]">
+          Total at risk &nbsp;·&nbsp;
+          <span className="text-primary normal-case tracking-normal text-sm">
+            {formatEURExact(totalAtRisk)}
+          </span>
+          &nbsp;/&nbsp;yr
         </div>
-        <p className="mt-5 text-sm text-foreground/90 leading-relaxed">{narrative}</p>
+        <p className="mt-5 text-xs text-foreground/80 leading-relaxed">{narrative}</p>
       </div>
 
       {/* Metric cards */}
       <div>
-        <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-3">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
           Live Analysis
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <MetricCard icon="💸" label="Annual Revenue Leakage" value={annualRevenueLeakage} />
-          <MetricCard icon="⏱️" label="Cash Flow Impact" value={cashFlowImpact} />
-          <MetricCard icon="🔧" label="Operational Cost" value={operationalCost} />
-          <MetricCard icon="⚠️" label="Total Revenue at Risk" value={totalAtRisk} accent />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border-faint border border-border-faint">
+          <MetricCard label="Annual Revenue Leakage" value={annualRevenueLeakage} />
+          <MetricCard label="Cash Flow Impact" value={cashFlowImpact} />
+          <MetricCard label="Operational Cost" value={operationalCost} />
+          <MetricCard label="Total Revenue at Risk" value={totalAtRisk} accent />
         </div>
       </div>
 
       {/* Breakdown */}
-      <div className="border border-border bg-card p-5 rounded-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="border border-border-faint bg-card p-5 rounded-none">
+        <div className="flex items-center justify-between mb-4 border-b border-border-faint pb-2">
+          <div className="text-[10px] uppercase tracking-[0.2em] text-label">
             Leakage Breakdown
           </div>
           {showBenchmarks && (
-            <div className="flex items-center gap-3 text-[10px] font-mono-tabular text-muted-foreground">
+            <div className="flex items-center gap-3 text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.12em]">
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-sm bg-primary" /> Your estimate
+                <span className="h-2 w-2 bg-primary" /> Your estimate
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-sm border border-muted-foreground/60" /> Industry avg
+                <span className="h-2 w-2 border border-label-mid" /> Industry avg
               </span>
             </div>
           )}
@@ -141,25 +151,27 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
         <div className="space-y-4">
           {breakdown.map((b) => (
             <div key={b.key}>
-              <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-foreground">{CATEGORY_LABELS[b.key]}</span>
-                <span className="font-mono-tabular text-muted-foreground">
+              <div className="flex justify-between text-[11px] mb-1.5">
+                <span className="text-foreground/80 uppercase tracking-[0.1em]">
+                  {CATEGORY_LABELS[b.key]}
+                </span>
+                <span className="font-mono-tabular text-primary">
                   {formatEUR(b.value)}
                   {showBenchmarks && (
-                    <span className="ml-2 text-muted-foreground/70">
+                    <span className="ml-2 text-label">
                       · avg {formatEUR(b.benchmark)}
                     </span>
                   )}
                 </span>
               </div>
-              <div className="relative h-1.5 bg-secondary rounded-full overflow-hidden">
+              <div className="relative h-2 bg-[hsl(var(--background))] border-b border-border-faint overflow-visible">
                 <div
                   className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${(b.value / max) * 100}%` }}
                 />
                 {showBenchmarks && (
                   <div
-                    className="absolute top-[-3px] bottom-[-3px] w-[2px] bg-muted-foreground/70"
+                    className="absolute top-[-3px] bottom-[-3px] w-px bg-label-mid"
                     style={{ left: `${(b.benchmark / max) * 100}%` }}
                     aria-label="Industry average benchmark"
                   />
@@ -171,40 +183,30 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
       </div>
 
       {/* Downloads */}
-      <div className="border border-border bg-card p-5 rounded-sm">
-        <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-3">
+      <div className="border border-border-faint bg-card p-5 rounded-none">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
           Export Report
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             type="button"
             onClick={() => downloadPDF(inputs, results, narrative)}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium rounded-sm bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            className="flex-1 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
           >
-            <FileText className="h-3.5 w-3.5" /> Download PDF
+            Download PDF
           </button>
           <button
             type="button"
             onClick={() => downloadCSV(inputs, results)}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium rounded-sm border border-border text-foreground hover:border-primary hover:text-primary transition-colors"
+            className="flex-1 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] rounded-none bg-transparent border border-rule text-label-mid hover:border-primary hover:text-primary transition-colors"
           >
-            <Download className="h-3.5 w-3.5" /> Download CSV
+            Download CSV
           </button>
         </div>
-        <p className="mt-2 text-[10px] text-muted-foreground font-mono-tabular">
+        <p className="mt-3 text-[10px] text-label font-mono-tabular uppercase tracking-[0.12em]">
           Generated client-side · no data leaves your browser
         </p>
       </div>
     </div>
   );
-}
-
-function riskScoreVar(score: CalculatorResults["riskScore"]) {
-  return score === "LOW"
-    ? "risk-low"
-    : score === "MEDIUM"
-      ? "risk-medium"
-      : score === "HIGH"
-        ? "risk-high"
-        : "risk-critical";
 }

@@ -17,11 +17,11 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             type="button"
             onClick={() => onChange(opt)}
             className={cn(
-              "px-3 py-2.5 text-xs font-medium rounded-sm border transition-colors",
+              "px-3 py-2 text-[10px] uppercase tracking-[0.18em] rounded-none border transition-colors",
               "focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
               active
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-foreground border-border hover:border-primary/50 hover:text-primary"
+                ? "border-primary text-primary bg-transparent"
+                : "bg-transparent text-label-mid border-rule hover:border-primary/60 hover:text-primary"
             )}
           >
             {opt}
