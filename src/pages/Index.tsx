@@ -33,9 +33,9 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <label className="text-sm text-foreground font-medium inline-flex items-center gap-1.5">
+        <label className="text-[10px] uppercase tracking-[0.18em] text-label-low inline-flex items-center gap-1.5">
           {label}
           {tooltip && <InfoTooltip text={tooltip} />}
         </label>
@@ -48,9 +48,9 @@ function Field({
 
 function SectionHeader({ step, title }: { step: string; title: string }) {
   return (
-    <div className="border-b border-border pb-2 mb-5">
-      <div className="text-[10px] uppercase tracking-[0.25em] text-primary font-mono-tabular">{step}</div>
-      <h2 className="text-base font-medium text-foreground mt-1">{title}</h2>
+    <div className="border-b border-border-faint pb-2 mb-5 flex items-baseline justify-between">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-label">{step}</div>
+      <h2 className="text-[11px] uppercase tracking-[0.2em] text-foreground/80">{title}</h2>
     </div>
   );
 }
@@ -93,19 +93,22 @@ const Index = () => {
   const results = useMemo(() => calculate(inputs), [inputs]);
 
   const sliderClass =
-    "w-full h-1 bg-secondary rounded-full appearance-none cursor-pointer accent-[hsl(var(--primary))] " +
-    "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 " +
-    "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer " +
-    "[&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0";
+    "w-full h-px bg-rule appearance-none cursor-pointer rounded-none " +
+    "[&::-webkit-slider-runnable-track]:h-px [&::-webkit-slider-runnable-track]:bg-rule " +
+    "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 " +
+    "[&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer " +
+    "[&::-webkit-slider-thumb]:-mt-[5px] " +
+    "[&::-moz-range-track]:h-px [&::-moz-range-track]:bg-rule " +
+    "[&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0";
 
   const inputClass =
-    "w-full bg-secondary border border-border rounded-sm px-3 py-2.5 text-sm font-mono-tabular text-foreground " +
-    "focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground";
+    "w-full bg-transparent border-0 border-b border-rule rounded-none px-0 py-2 text-base font-mono-tabular text-primary " +
+    "focus:outline-none focus:border-primary transition-colors placeholder:text-label";
 
   return (
-    <div className="min-h-screen bg-background text-foreground fade-in">
+    <div className="min-h-screen bg-background text-foreground fade-in p-0">
       {/* Header */}
-      <header className="border-b border-border">
+      <header className="border-b border-border-faint">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 min-w-0">
             <svg
@@ -119,17 +122,19 @@ const Index = () => {
               <circle cx="9" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" />
               <circle cx="15" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.6" />
             </svg>
-            <span className="font-semibold tracking-tight">Rev-Sync</span>
-            <span className="hidden sm:inline text-xs text-muted-foreground ml-2">Revenue Leakage Calculator</span>
+            <span className="text-sm font-semibold tracking-[0.05em] uppercase">Rev-Sync</span>
+            <span className="hidden sm:inline text-[10px] uppercase tracking-[0.2em] text-label-low ml-2">
+              Revenue Leakage Calculator
+            </span>
           </div>
           <nav className="flex items-center gap-1 text-xs">
             <button
               type="button"
               onClick={() => setTab("calculator")}
-              className={`px-3 py-1.5 rounded-sm transition-colors ${
+              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-[10px] border transition-colors ${
                 tab === "calculator"
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-label-low hover:text-foreground"
               }`}
             >
               Calculator
@@ -137,14 +142,14 @@ const Index = () => {
             <button
               type="button"
               onClick={() => setTab("reconciliation")}
-              className={`px-3 py-1.5 rounded-sm transition-colors inline-flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-[10px] border transition-colors inline-flex items-center gap-2 ${
                 tab === "reconciliation"
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-label-low hover:text-foreground"
               }`}
             >
               Reconciliation
-              <span className="text-[9px] font-mono-tabular uppercase tracking-[0.2em] border border-primary/60 text-primary px-1.5 py-0.5 rounded-sm">
+              <span className="text-[9px] uppercase tracking-[0.2em] border border-primary/60 text-primary px-1.5 py-0.5 rounded-none">
                 Soon
               </span>
             </button>
@@ -154,16 +159,16 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-5 md:px-8 py-8 md:py-12">
         <div className="mb-10 md:mb-12 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug">
             Find the revenue leaking out of your <span className="text-primary">Quote-to-Cash</span> stack.
           </h1>
-          <div className="mt-3 text-[11px] text-muted-foreground font-mono-tabular">
+          <div className="mt-3 text-[10px] uppercase tracking-[0.2em] text-label-low">
             v1.0 · client-side · no data stored
           </div>
-          <div className="block md:hidden text-[11px] text-muted-foreground font-mono-tabular">
+          <div className="block md:hidden text-[10px] uppercase tracking-[0.2em] text-label-low">
             best experienced on desktop
           </div>
-          <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-xs md:text-sm text-label-low leading-relaxed">
             A clinical, real-time estimate based on patterns observed across B2B SaaS billing audits. Answer ten
             questions. See where the money is going.
           </p>
@@ -176,14 +181,20 @@ const Index = () => {
             {/* LEFT — inputs */}
             <div className="space-y-10">
               {/* Benchmark toggle */}
-              <div className="flex items-center justify-between border border-border rounded-sm bg-card px-4 py-3">
+              <div className="flex items-center justify-between border border-border-faint bg-card rounded-none px-4 py-3">
                 <div>
-                  <div className="text-sm text-foreground font-medium">Compare to Industry Average</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">
-                    Overlay B2B SaaS benchmarks on the leakage chart
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-foreground/80">
+                    Compare to Industry Average
+                  </div>
+                  <div className="text-[10px] text-label mt-1 uppercase tracking-[0.15em]">
+                    Overlay B2B SaaS benchmarks
                   </div>
                 </div>
-                <Switch checked={showBenchmarks} onCheckedChange={setShowBenchmarks} aria-label="Toggle industry benchmarks" />
+                <Switch
+                  checked={showBenchmarks}
+                  onCheckedChange={setShowBenchmarks}
+                  aria-label="Toggle industry benchmarks"
+                />
               </div>
 
             {/* STEP 1 */}
@@ -200,7 +211,7 @@ const Index = () => {
                     onChange={(e) => update("arr", Math.round(sliderToArr(parseFloat(e.target.value))))}
                     className={sliderClass}
                   />
-                  <div className="flex justify-between text-[10px] text-muted-foreground font-mono-tabular">
+                  <div className="flex justify-between text-[10px] text-label font-mono-tabular mt-2">
                     <span>{formatEUR(ARR_MIN)}</span>
                     <span>{formatEUR(ARR_MAX)}</span>
                   </div>
