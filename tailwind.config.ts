@@ -13,8 +13,33 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: [
+          "JetBrains Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
+        sans: [
+          "JetBrains Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
+      },
       colors: {
         border: "hsl(var(--border))",
+        "border-faint": "hsl(var(--border-faint))",
+        rule: "hsl(var(--rule))",
+        label: "hsl(var(--label))",
+        "label-mid": "hsl(var(--label-mid))",
+        "label-low": "hsl(var(--label-low))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
