@@ -320,18 +320,18 @@ const Index = () => {
         )}
       </main>
 
-      <footer className="border-t border-border mt-16">
+      <footer className="border-t border-border-faint mt-16">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 space-y-4">
           <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <p className="text-xs text-foreground max-w-xl leading-relaxed">
+            <p className="text-[11px] text-foreground/80 max-w-xl leading-relaxed">
               Built by Thandive Sila. · Revenue & Billing Operations · 8+ years in B2B SaaS
             </p>
-            <div className="flex gap-5 text-xs">
+            <div className="flex gap-5 text-[10px] uppercase tracking-[0.2em]">
               <a
                 href="https://www.linkedin.com/in/thandive"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground hover:text-primary transition-colors"
+                className="text-label-low hover:text-primary transition-colors"
               >
                 LinkedIn
               </a>
@@ -339,13 +339,13 @@ const Index = () => {
                 href="https://www.revenue.thandive.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground hover:text-primary transition-colors"
+                className="text-label-low hover:text-primary transition-colors"
               >
                 View Portfolio
               </a>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-[10px] text-label leading-relaxed uppercase tracking-[0.12em]">
             Estimates are indicative only and based on industry benchmarks. Not financial advice.
           </p>
         </div>
