@@ -8,36 +8,43 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Rev-Sync clinical dark theme */
-    --background: 0 0% 4%;            /* #0a0a0a */
-    --foreground: 0 0% 100%;
+    /* Rev-Sync — terminal / Bloomberg aesthetic */
+    --background: 0 0% 5%;            /* #0d0d0d page */
+    --foreground: 0 0% 88%;
 
-    --card: 0 0% 7%;                  /* slightly elevated */
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 6.7%;                /* #111 cards */
+    --card-foreground: 0 0% 88%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 6.7%;             /* #111 */
+    --popover-foreground: 0 0% 88%;
 
-    --primary: 152 100% 50%;          /* electric green #00ff88 */
-    --primary-foreground: 0 0% 4%;
+    --primary: 152 100% 50%;          /* #00ff88 */
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 88%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 40%;     /* #666 */
 
     --accent: 152 100% 50%;
-    --accent-foreground: 0 0% 4%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
+    --border: 0 0% 13%;               /* #222 */
+    --border-faint: 0 0% 10%;         /* #1a1a1a */
+    --rule: 0 0% 20%;                 /* #333 underline / track */
+    --input: 0 0% 13%;
     --ring: 152 100% 50%;
 
-    --radius: 0.375rem;
+    /* Terminal-grade text dimming */
+    --label: 0 0% 27%;                /* #444 */
+    --label-mid: 0 0% 33%;            /* #555 */
+    --label-low: 0 0% 40%;            /* #666 */
+
+    --radius: 0rem;
 
     /* Risk score colors */
     --risk-low: 152 100% 50%;
