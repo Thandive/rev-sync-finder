@@ -40,9 +40,9 @@ All colors MUST be HSL.
     --ring: 152 100% 50%;
 
     /* Terminal-grade text dimming */
-    --label: 0 0% 27%;                /* #444 */
-    --label-mid: 0 0% 33%;            /* #555 */
-    --label-low: 0 0% 40%;            /* #666 */
+    --label: 0 0% 65%;                /* brightened from #444 */
+    --label-mid: 0 0% 80%;            /* brightened from #555 */
+    --label-low: 0 0% 88%;            /* brightened from #666 — matches foreground */
 
     --radius: 0rem;
 

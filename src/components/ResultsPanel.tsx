@@ -115,7 +115,7 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
           </span>
           &nbsp;/&nbsp;yr
         </div>
-        <p className="mt-5 text-xs text-foreground/80 leading-relaxed">{narrative}</p>
+        <p className="mt-5 text-sm text-foreground/80 leading-relaxed">{narrative}</p>
       </div>
 
       {/* Metric cards */}
@@ -151,7 +151,7 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
         <div className="space-y-4">
           {breakdown.map((b) => (
             <div key={b.key}>
-              <div className="flex justify-between text-[11px] mb-1.5">
+              <div className="flex justify-between text-xs mb-1.5">
                 <span className="text-foreground/80 uppercase tracking-[0.1em]">
                   {CATEGORY_LABELS[b.key]}
                 </span>
