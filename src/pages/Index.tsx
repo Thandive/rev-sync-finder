@@ -168,7 +168,7 @@ const Index = () => {
           <div className="block md:hidden text-[10px] uppercase tracking-[0.2em] text-label-low">
             best experienced on desktop
           </div>
-          <p className="mt-4 text-xs md:text-sm text-label-low leading-relaxed">
+          <p className="mt-4 text-sm md:text-base text-label-low leading-relaxed">
             A clinical, real-time estimate based on patterns observed across B2B SaaS billing audits. Answer ten
             questions. See where the money is going.
           </p>
@@ -321,29 +321,28 @@ const Index = () => {
       </main>
 
       <footer className="border-t border-border-faint mt-16">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-            <p className="text-[11px] text-foreground/80 max-w-xl leading-relaxed">
-              Built by Thandive Sila. · Revenue & Billing Operations · 8+ years in B2B SaaS
-            </p>
-            <div className="flex gap-5 text-[10px] uppercase tracking-[0.2em]">
-              <a
-                href="https://www.linkedin.com/in/thandive"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-label-low hover:text-primary transition-colors"
-              >
-                LinkedIn
-              </a>
-              <a
-                href="https://www.revenue.thandive.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-label-low hover:text-primary transition-colors"
-              >
-                View Portfolio
-              </a>
-            </div>
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 flex flex-col items-center text-center gap-4">
+          <p className="text-sm text-foreground/80 max-w-xl leading-relaxed">
+            Built by{" "}
+            <a
+              href="https://thandive.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+            >
+              Thandive Sila
+            </a>
+            . · Revenue & Billing Operations · 8+ years in B2B SaaS
+          </p>
+          <div className="flex gap-5 text-[10px] uppercase tracking-[0.2em]">
+            <a
+              href="https://www.linkedin.com/in/thandive"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-label-low hover:text-primary transition-colors"
+            >
+              LinkedIn
+            </a>
           </div>
           <p className="text-[10px] text-label leading-relaxed uppercase tracking-[0.12em]">
             Estimates are indicative only and based on industry benchmarks. Not financial advice.
