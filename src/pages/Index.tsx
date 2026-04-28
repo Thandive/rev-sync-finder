@@ -122,12 +122,12 @@ const Index = () => {
               <circle cx="9" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" />
               <circle cx="15" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.6" />
             </svg>
-            <span className="text-sm font-semibold tracking-[0.05em] uppercase">Rev-Sync</span>
+            <span className="text-base font-semibold tracking-[0.05em] uppercase">Rev-Sync</span>
             <span className="hidden sm:inline text-xs uppercase tracking-[0.2em] text-label-low ml-2">
               Revenue Leakage Calculator
             </span>
           </div>
-          <nav className="flex items-center gap-1 text-xs">
+          <nav className="flex items-center gap-1 text-sm">
             <button
               type="button"
               onClick={() => setTab("calculator")}
