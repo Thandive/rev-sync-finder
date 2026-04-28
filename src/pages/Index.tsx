@@ -18,6 +18,11 @@ import {
 
 const RECON = ["Manual", "Partially Automated", "Fully Automated"] as const;
 const FREQ = ["Rarely", "Occasionally", "Frequently"] as const;
+const FREQ_LABELS: Record<(typeof FREQ)[number], string> = {
+  Rarely: "Rarely (< 2% of invoices)",
+  Occasionally: "Occasionally (2–10%)",
+  Frequently: "Frequently (> 10%)",
+};
 const CREDIT = ["Yes", "Ad Hoc", "No"] as const;
 const SYSTEMS = ["1", "2", "3+"] as const;
 
@@ -59,11 +64,11 @@ const TOOLTIPS = {
   arr: "ARR anchors all leakage estimates. The larger the base, the more meaningful even small percentage leaks become in absolute euros.",
   dealsPerMonth: "Deal volume drives invoicing throughput. The more deals close, the more opportunities for handover errors between CRM and billing.",
   acv: "ACV multiplies the cost of every billing mistake. Higher ACVs mean a single missed invoice or discrepancy can represent significant revenue.",
-  delayDays: "Time between deal close and invoice raised is deferred cash. Each day delays collection, distorts revenue recognition, and signals weak QTC automation.",
-  uninvoicedPct: "Typically indicates a breakdown in CRM-to-billing handover. Each uninvoiced deal is deferred or lost revenue that may never be collected.",
+  delayDays: "If your billing is triggered by service start date rather than deal close date, use the gap between service start and invoice date instead.",
+  uninvoicedPct: "Measure from first billing date or service start date — not from deal close date. Deals with a future start date are expected to have no invoice at close.",
   reconciliation: "Manual reconciliation introduces lag and human error — both of which widen the gap between booked and billed revenue.",
   discrepancyFreq: "Invoices that don't match contracted amounts indicate broken pricing logic, stale CRM data, or weak controls between Sales and Finance.",
-  dirtyDataPct: "Poor data quality causes billing to fire against wrong amounts, wrong customers, or not at all — directly causing leakage and disputes.",
+  dirtyDataPct: "If your CRM and billing system are integrated: look for field mapping gaps and sync errors. If the process is manual (e.g. PDF contract → ERP data entry): look for transcription errors and missing line items. Either way, poor data quality drives revenue leakage.",
   creditNoteProcess: "Without a documented process, credit notes get issued informally — creating reconciliation gaps and silent revenue write-downs.",
   systems: "More systems holding revenue data means more reconciliation surface area and more places for the source of truth to diverge.",
 } as const;
@@ -180,6 +185,11 @@ const Index = () => {
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-12">
             {/* LEFT — inputs */}
             <div className="space-y-10">
+              {/* Privacy notice */}
+              <div className="border-l-2 border-primary bg-primary/5 px-3 py-2 text-xs uppercase tracking-[0.15em] text-foreground/85">
+                <span className="text-primary mr-1">●</span> Generated client-side · no data leaves your browser
+              </div>
+
               {/* Benchmark toggle */}
               <div className="flex items-center justify-between border border-border-faint bg-card rounded-none px-4 py-3">
                 <div>
@@ -275,6 +285,7 @@ const Index = () => {
                     options={FREQ}
                     value={inputs.discrepancyFreq}
                     onChange={(v) => update("discrepancyFreq", v)}
+                    labels={FREQ_LABELS}
                   />
                 </Field>
               </div>
