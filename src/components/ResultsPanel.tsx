@@ -9,6 +9,7 @@ import {
   RECOMMENDATIONS,
 } from "@/lib/calculations";
 import { downloadCSV, downloadPDF } from "@/lib/exports";
+import { InfoTooltip } from "@/components/InfoTooltip";
 
 interface Props {
   results: CalculatorResults;
@@ -30,12 +31,30 @@ const scoreMeaning: Record<CalculatorResults["riskScore"], string> = {
   CRITICAL: "Severe leakage. The cost of inaction compounds every billing cycle.",
 };
 
-function MetricCard({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) {
+function MetricCard({
+  label,
+  value,
+  accent = false,
+  tooltip,
+  subtitle,
+}: {
+  label: string;
+  value: number;
+  accent?: boolean;
+  tooltip?: string;
+  subtitle?: string;
+}) {
   return (
     <div className="border border-border-faint bg-card p-5 rounded-none">
-      <div className="text-xs uppercase tracking-[0.18em] text-label-low">
+      <div className="text-xs uppercase tracking-[0.18em] text-label-low inline-flex items-center gap-1.5">
         {label}
+        {tooltip && <InfoTooltip text={tooltip} />}
       </div>
+      {subtitle && (
+        <div className="mt-1 text-[11px] text-label normal-case tracking-normal leading-snug">
+          {subtitle}
+        </div>
+      )}
       <div className={`mt-3 font-mono font-semibold text-primary ${accent ? "text-3xl md:text-4xl" : "text-2xl"}`}>
         {formatEUR(value)}
       </div>
@@ -81,6 +100,11 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
   const top = breakdown.reduce((a, b) => (b.value > a.value ? b : a), breakdown[0]);
   const narrative = `${scoreMeaning[riskScore]} The largest contributor is ${CATEGORY_LABELS[top.key]} at ${formatEUR(top.value)} per year. ${RECOMMENDATIONS[top.key]}`;
 
+  // Split totals — leakage excludes billing delay (informational) and ops cost
+  const estimatedRevenueLeakage = uninvoicedLeakage + discrepancyLeakage + dataQualityLeakage;
+  const estimatedOperationalWaste = manualReconciliationCost;
+  const combinedExposure = estimatedRevenueLeakage + estimatedOperationalWaste;
+
   return (
     <div className="space-y-6">
       {/* HERO — Risk Score */}
@@ -118,6 +142,19 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
         <p className="mt-5 text-sm text-foreground/80 leading-relaxed">{narrative}</p>
       </div>
 
+      {/* Primary driver callout */}
+      <div className="border-l-2 border-primary bg-primary/5 px-4 py-3">
+        <div className="text-xs uppercase tracking-[0.18em] text-label-low">
+          Primary leakage driver
+        </div>
+        <div className="mt-1 font-mono text-sm md:text-base text-foreground/90">
+          <span className="text-primary font-semibold">{CATEGORY_LABELS[top.key]}</span>
+          <span className="text-label-mid"> — </span>
+          <span className="text-primary font-mono-tabular">{formatEURExact(top.value)}</span>
+          <span className="text-label-low text-xs"> / yr</span>
+        </div>
+      </div>
+
       {/* Metric cards */}
       <div>
         <div className="text-xs uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
@@ -125,9 +162,42 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border-faint border border-border-faint">
           <MetricCard label="Annual Revenue Leakage" value={annualRevenueLeakage} />
-          <MetricCard label="Cash Flow Impact" value={cashFlowImpact} />
+          <MetricCard
+            label="Billing Delay Cost"
+            value={cashFlowImpact}
+            tooltip="Estimated cost of capital tied up in delayed invoicing. Shown as a standalone informational metric — not included in the totals below."
+          />
           <MetricCard label="Operational Cost" value={operationalCost} />
-          <MetricCard label="Total Revenue at Risk" value={totalAtRisk} accent />
+          <MetricCard label="Estimated Revenue Leakage" value={estimatedRevenueLeakage} accent />
+        </div>
+
+        {/* Split summary lines */}
+        <div className="mt-3 border border-border-faint bg-card rounded-none divide-y divide-border-faint">
+          <div className="flex items-baseline justify-between px-4 py-2.5">
+            <span className="text-xs uppercase tracking-[0.18em] text-label">
+              Estimated Revenue Leakage
+            </span>
+            <span className="font-mono-tabular text-primary text-sm">
+              {formatEURExact(estimatedRevenueLeakage)} / yr
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between px-4 py-2.5">
+            <span className="text-xs uppercase tracking-[0.18em] text-label">
+              Estimated Operational Waste
+            </span>
+            <span className="font-mono-tabular text-primary text-sm">
+              {formatEURExact(estimatedOperationalWaste)} / yr
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between px-4 py-2.5 bg-primary/5">
+            <span className="text-xs uppercase tracking-[0.18em] text-foreground/80 inline-flex items-center gap-1.5">
+              Combined Exposure
+              <InfoTooltip text="Sum of Estimated Revenue Leakage (Uninvoiced + Discrepancies + Data Quality) and Estimated Operational Waste (Manual Recon Cost). Excludes Billing Delay Cost, which is shown as informational only." />
+            </span>
+            <span className="font-mono-tabular text-primary text-sm font-semibold">
+              {formatEURExact(combinedExposure)} / yr
+            </span>
+          </div>
         </div>
       </div>
 
@@ -180,6 +250,11 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
             </div>
           ))}
         </div>
+        {showBenchmarks && (
+          <p className="mt-4 pt-3 border-t border-border-faint text-xs text-label-low leading-relaxed normal-case tracking-normal">
+            Industry averages are ARR-scaled estimates derived from published B2B SaaS billing audit benchmarks. Intended as directional reference only.
+          </p>
+        )}
       </div>
 
       {/* Downloads */}
@@ -203,9 +278,6 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
             Download CSV
           </button>
         </div>
-        <p className="mt-3 text-xs text-label font-mono-tabular uppercase tracking-[0.12em]">
-          Generated client-side · no data leaves your browser
-        </p>
       </div>
     </div>
   );
