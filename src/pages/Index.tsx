@@ -280,6 +280,7 @@ const Index = () => {
                     options={FREQ}
                     value={inputs.discrepancyFreq}
                     onChange={(v) => update("discrepancyFreq", v)}
+                    labels={FREQ_LABELS}
                   />
                 </Field>
               </div>
