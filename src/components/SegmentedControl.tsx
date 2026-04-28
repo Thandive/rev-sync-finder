@@ -17,7 +17,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             type="button"
             onClick={() => onChange(opt)}
             className={cn(
-              "px-3 py-2 text-[10px] uppercase tracking-[0.18em] rounded-none border transition-colors",
+              "px-3 py-2 text-xs uppercase tracking-[0.18em] rounded-none border transition-colors",
               "focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
               active
                 ? "border-primary text-primary bg-transparent"

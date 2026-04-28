@@ -32,8 +32,8 @@ export function CookieNotice() {
       className="fade-in fixed bottom-4 left-4 right-4 md:left-auto md:max-w-xl z-50 border border-border-faint bg-card rounded-none p-4 md:p-5"
     >
       <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <p className="text-[11px] text-foreground/80 leading-relaxed flex-1">
-          <span className="text-primary text-[10px] uppercase tracking-[0.25em] block mb-1">
+        <p className="text-sm text-foreground/80 leading-relaxed flex-1">
+          <span className="text-primary text-xs uppercase tracking-[0.25em] block mb-1">
             Notice
           </span>
           We use only essential cookies to remember your preferences. No tracking, no analytics, no data stored on our servers.
@@ -42,14 +42,14 @@ export function CookieNotice() {
           <button
             type="button"
             onClick={() => dismiss("declined")}
-            className="text-[10px] uppercase tracking-[0.2em] px-3 py-2 border border-rule rounded-none text-label-mid hover:text-foreground hover:border-foreground transition-colors"
+            className="text-xs uppercase tracking-[0.2em] px-3 py-2 border border-rule rounded-none text-label-mid hover:text-foreground hover:border-foreground transition-colors"
           >
             Decline
           </button>
           <button
             type="button"
             onClick={() => dismiss("accepted")}
-            className="text-[10px] uppercase tracking-[0.2em] px-3 py-2 rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="text-xs uppercase tracking-[0.2em] px-3 py-2 rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             Accept
           </button>

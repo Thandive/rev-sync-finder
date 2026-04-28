@@ -33,13 +33,13 @@ const scoreMeaning: Record<CalculatorResults["riskScore"], string> = {
 function MetricCard({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) {
   return (
     <div className="border border-border-faint bg-card p-5 rounded-none">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-label-low">
+      <div className="text-xs uppercase tracking-[0.18em] text-label-low">
         {label}
       </div>
       <div className={`mt-3 font-mono font-semibold text-primary ${accent ? "text-3xl md:text-4xl" : "text-2xl"}`}>
         {formatEUR(value)}
       </div>
-      <div className="mt-1 text-[10px] text-label font-mono-tabular uppercase tracking-[0.12em]">
+      <div className="mt-1 text-xs text-label font-mono-tabular uppercase tracking-[0.12em]">
         {formatEURExact(value)} / yr
       </div>
     </div>
@@ -95,10 +95,10 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
         }
       >
         <div className="flex items-center justify-between mb-4">
-          <div className="text-[10px] uppercase tracking-[0.25em] text-label-low">
+          <div className="text-xs uppercase tracking-[0.25em] text-label-low">
             Revenue Risk Score
           </div>
-          <div className="text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.15em]">
+          <div className="text-xs font-mono-tabular text-label-low uppercase tracking-[0.15em]">
             {(riskRatio * 100).toFixed(2)}% of ARR
           </div>
         </div>
@@ -108,7 +108,7 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
             {riskScore}
           </span>
         </div>
-        <div className="mt-3 text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.18em]">
+        <div className="mt-3 text-xs font-mono-tabular text-label-low uppercase tracking-[0.18em]">
           Total at risk &nbsp;·&nbsp;
           <span className="text-primary normal-case tracking-normal text-sm">
             {formatEURExact(totalAtRisk)}
@@ -120,7 +120,7 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
 
       {/* Metric cards */}
       <div>
-        <div className="text-[10px] uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
+        <div className="text-xs uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
           Live Analysis
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border-faint border border-border-faint">
@@ -134,11 +134,11 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
       {/* Breakdown */}
       <div className="border border-border-faint bg-card p-5 rounded-none">
         <div className="flex items-center justify-between mb-4 border-b border-border-faint pb-2">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-label">
+          <div className="text-xs uppercase tracking-[0.2em] text-label">
             Leakage Breakdown
           </div>
           {showBenchmarks && (
-            <div className="flex items-center gap-3 text-[10px] font-mono-tabular text-label-low uppercase tracking-[0.12em]">
+            <div className="flex items-center gap-3 text-xs font-mono-tabular text-label-low uppercase tracking-[0.12em]">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 bg-primary" /> Your estimate
               </span>
@@ -184,26 +184,26 @@ export function ResultsPanel({ results, inputs, showBenchmarks }: Props) {
 
       {/* Downloads */}
       <div className="border border-border-faint bg-card p-5 rounded-none">
-        <div className="text-[10px] uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
+        <div className="text-xs uppercase tracking-[0.2em] text-label border-b border-border-faint pb-2 mb-3">
           Export Report
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             type="button"
             onClick={() => downloadPDF(inputs, results, narrative)}
-            className="flex-1 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="flex-1 px-4 py-2.5 text-xs uppercase tracking-[0.2em] rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             Download PDF
           </button>
           <button
             type="button"
             onClick={() => downloadCSV(inputs, results)}
-            className="flex-1 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] rounded-none bg-transparent border border-rule text-label-mid hover:border-primary hover:text-primary transition-colors"
+            className="flex-1 px-4 py-2.5 text-xs uppercase tracking-[0.2em] rounded-none bg-transparent border border-rule text-label-mid hover:border-primary hover:text-primary transition-colors"
           >
             Download CSV
           </button>
         </div>
-        <p className="mt-3 text-[10px] text-label font-mono-tabular uppercase tracking-[0.12em]">
+        <p className="mt-3 text-xs text-label font-mono-tabular uppercase tracking-[0.12em]">
           Generated client-side · no data leaves your browser
         </p>
       </div>

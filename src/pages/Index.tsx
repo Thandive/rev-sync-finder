@@ -35,7 +35,7 @@ function Field({
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
-        <label className="text-[10px] uppercase tracking-[0.18em] text-label-low inline-flex items-center gap-1.5">
+        <label className="text-xs uppercase tracking-[0.18em] text-label-low inline-flex items-center gap-1.5">
           {label}
           {tooltip && <InfoTooltip text={tooltip} />}
         </label>
@@ -49,8 +49,8 @@ function Field({
 function SectionHeader({ step, title }: { step: string; title: string }) {
   return (
     <div className="border-b border-border-faint pb-2 mb-5 flex items-baseline justify-between">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-label">{step}</div>
-      <h2 className="text-[11px] uppercase tracking-[0.2em] text-foreground/80">{title}</h2>
+      <div className="text-xs uppercase tracking-[0.2em] text-label">{step}</div>
+      <h2 className="text-sm uppercase tracking-[0.2em] text-foreground/80">{title}</h2>
     </div>
   );
 }
@@ -123,7 +123,7 @@ const Index = () => {
               <circle cx="15" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.6" />
             </svg>
             <span className="text-sm font-semibold tracking-[0.05em] uppercase">Rev-Sync</span>
-            <span className="hidden sm:inline text-[10px] uppercase tracking-[0.2em] text-label-low ml-2">
+            <span className="hidden sm:inline text-xs uppercase tracking-[0.2em] text-label-low ml-2">
               Revenue Leakage Calculator
             </span>
           </div>
@@ -131,7 +131,7 @@ const Index = () => {
             <button
               type="button"
               onClick={() => setTab("calculator")}
-              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-[10px] border transition-colors ${
+              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-xs border transition-colors ${
                 tab === "calculator"
                   ? "border-primary text-primary"
                   : "border-transparent text-label-low hover:text-foreground"
@@ -142,14 +142,14 @@ const Index = () => {
             <button
               type="button"
               onClick={() => setTab("reconciliation")}
-              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-[10px] border transition-colors inline-flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-none uppercase tracking-[0.18em] text-xs border transition-colors inline-flex items-center gap-2 ${
                 tab === "reconciliation"
                   ? "border-primary text-primary"
                   : "border-transparent text-label-low hover:text-foreground"
               }`}
             >
               Reconciliation
-              <span className="text-[9px] uppercase tracking-[0.2em] border border-primary/60 text-primary px-1.5 py-0.5 rounded-none">
+              <span className="text-[10px] uppercase tracking-[0.2em] border border-primary/60 text-primary px-1.5 py-0.5 rounded-none">
                 Soon
               </span>
             </button>
@@ -162,10 +162,10 @@ const Index = () => {
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug">
             Find the revenue leaking out of your <span className="text-primary">Quote-to-Cash</span> stack.
           </h1>
-          <div className="mt-3 text-[10px] uppercase tracking-[0.2em] text-label-low">
+          <div className="mt-3 text-xs uppercase tracking-[0.2em] text-label-low">
             v1.0 · client-side · no data stored
           </div>
-          <div className="block md:hidden text-[10px] uppercase tracking-[0.2em] text-label-low">
+          <div className="block md:hidden text-xs uppercase tracking-[0.2em] text-label-low">
             best experienced on desktop
           </div>
           <p className="mt-4 text-sm md:text-base text-label-low leading-relaxed">
@@ -183,10 +183,10 @@ const Index = () => {
               {/* Benchmark toggle */}
               <div className="flex items-center justify-between border border-border-faint bg-card rounded-none px-4 py-3">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-foreground/80">
+                  <div className="text-xs uppercase tracking-[0.2em] text-foreground/80">
                     Compare to Industry Average
                   </div>
-                  <div className="text-[10px] text-label mt-1 uppercase tracking-[0.15em]">
+                  <div className="text-xs text-label mt-1 uppercase tracking-[0.15em]">
                     Overlay B2B SaaS benchmarks
                   </div>
                 </div>
@@ -211,7 +211,7 @@ const Index = () => {
                     onChange={(e) => update("arr", Math.round(sliderToArr(parseFloat(e.target.value))))}
                     className={sliderClass}
                   />
-                  <div className="flex justify-between text-[10px] text-label font-mono-tabular mt-2">
+                  <div className="flex justify-between text-xs text-label font-mono-tabular mt-2">
                     <span>{formatEUR(ARR_MIN)}</span>
                     <span>{formatEUR(ARR_MAX)}</span>
                   </div>
@@ -334,7 +334,7 @@ const Index = () => {
             </a>
             . · Revenue & Billing Operations · 8+ years in B2B SaaS
           </p>
-          <div className="flex gap-5 text-[10px] uppercase tracking-[0.2em]">
+          <div className="flex gap-5 text-xs uppercase tracking-[0.2em]">
             <a
               href="https://www.linkedin.com/in/thandive"
               target="_blank"
@@ -344,7 +344,7 @@ const Index = () => {
               LinkedIn
             </a>
           </div>
-          <p className="text-[10px] text-label leading-relaxed uppercase tracking-[0.12em]">
+          <p className="text-xs text-label leading-relaxed uppercase tracking-[0.12em]">
             Estimates are indicative only and based on industry benchmarks. Not financial advice.
           </p>
         </div>
