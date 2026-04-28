@@ -25,7 +25,7 @@ export function InfoTooltip({ text }: Props) {
         </TooltipTrigger>
         <TooltipContent
           side="top"
-          className="max-w-xs text-[11px] leading-relaxed bg-card border border-border-faint text-foreground/85 rounded-none font-mono"
+          className="max-w-xs text-sm leading-relaxed bg-card border border-border-faint text-foreground/85 rounded-none font-mono"
         >
           {text}
         </TooltipContent>
