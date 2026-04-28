@@ -185,6 +185,11 @@ const Index = () => {
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-12">
             {/* LEFT — inputs */}
             <div className="space-y-10">
+              {/* Privacy notice */}
+              <div className="border-l-2 border-primary bg-primary/5 px-3 py-2 text-xs uppercase tracking-[0.15em] text-foreground/85">
+                <span className="text-primary mr-1">●</span> Generated client-side · no data leaves your browser
+              </div>
+
               {/* Benchmark toggle */}
               <div className="flex items-center justify-between border border-border-faint bg-card rounded-none px-4 py-3">
                 <div>
