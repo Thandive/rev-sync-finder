@@ -116,7 +116,7 @@ const Calculator = () => {
       <AppNav />
       {/* Header */}
       <header className="border-b border-border-faint">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-5 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-5 flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
           <div className="flex items-center gap-2.5 min-w-0">
             <svg
               width="24"
@@ -130,7 +130,7 @@ const Calculator = () => {
               <circle cx="15" cy="12" r="6" stroke="hsl(var(--primary))" strokeWidth="2" opacity="0.6" />
             </svg>
             <span className="text-base font-semibold tracking-[0.05em] uppercase">Rev-Sync</span>
-            <span className="hidden sm:inline text-xs uppercase tracking-[0.2em] text-label-low ml-2">
+            <span className="hidden md:inline text-xs uppercase tracking-[0.2em] text-label-low ml-2">
               Revenue Leakage Calculator
             </span>
           </div>
