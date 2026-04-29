@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
+import Calculator from "./pages/Calculator.tsx";
 import Pipeline from "./pages/Pipeline.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -17,7 +18,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-<Route path="/pipeline" element={<Pipeline />} />
+          <Route path="/calculator" element={<Calculator />} />
+          <Route path="/pipeline" element={<Pipeline />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
