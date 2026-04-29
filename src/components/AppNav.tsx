@@ -20,6 +20,14 @@ export function AppNav() {
               `${linkBase} ${isActive ? linkActive : linkInactive}`
             }
           >
+            Home
+          </NavLink>
+          <NavLink
+            to="/calculator"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : linkInactive}`
+            }
+          >
             Revenue Leakage Calculator
           </NavLink>
           <NavLink
