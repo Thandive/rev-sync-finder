@@ -5,6 +5,7 @@ import { CookieNotice } from "@/components/CookieNotice";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { NumberField } from "@/components/NumberField";
 import { V2Panel } from "@/components/V2Panel";
+import { AppNav } from "@/components/AppNav";
 import { Switch } from "@/components/ui/switch";
 import {
   ARR_MAX,
@@ -112,6 +113,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground fade-in p-0">
+      <AppNav />
       {/* Header */}
       <header className="border-b border-border-faint">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-5 flex items-center justify-between gap-4">
