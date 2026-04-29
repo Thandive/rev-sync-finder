@@ -211,10 +211,9 @@ Write the narrative as if presenting to a VP of Revenue. Start with the bottom l
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: "0.05em", color: "#e8edf3", margin: 0 }}>
             Pipeline Coverage Storyteller
           </h1>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#8892a4", letterSpacing: "0.1em" }}>POWERED BY</div>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#00ff88", fontWeight: 700 }}>StaySync · Q{Math.ceil(new Date().getMonth() / 3)} {new Date().getFullYear()}</div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#8892a4", letterSpacing: "0.2em", textTransform: "uppercase", marginTop: 8 }}>
+            v1.0 · client-side · no data stored
+          </div>
         </div>
       </div>
 
