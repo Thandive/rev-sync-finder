@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AppNav } from "@/components/AppNav";
 
 const STAGES = [
   { id: "discovery", label: "Discovery", defaultWinRate: 40, defaultCycle: 14 },
@@ -179,6 +180,7 @@ Write the narrative as if presenting to a VP of Revenue. Start with the bottom l
         transition: "opacity 0.5s ease",
       }}
     >
+      <AppNav />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap');
         input[type=range]::-webkit-slider-thumb {
