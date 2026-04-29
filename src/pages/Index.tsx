@@ -90,7 +90,7 @@ const Index = () => {
             >
               Thandive Sila
             </a>
-            . · Revenue & Billing Operations · 8+ years in B2B SaaS
+            . · Revenue & Billing Operations
           </p>
           <div className="flex gap-5 text-xs uppercase tracking-[0.2em]">
             <a
