@@ -76,7 +76,7 @@ const TOOLTIPS = {
 
 type Tab = "calculator" | "reconciliation";
 
-const Index = () => {
+const Calculator = () => {
   const [tab, setTab] = useState<Tab>("calculator");
   const [showBenchmarks, setShowBenchmarks] = useState(false);
 
@@ -367,4 +367,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Calculator;
