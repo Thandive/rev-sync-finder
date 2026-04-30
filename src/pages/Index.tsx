@@ -21,6 +21,7 @@ const TOOLS: ToolCard[] = [
     description:
       "Translate pipeline data into a VP-ready narrative with gap analysis and AI-generated recommendations.",
     href: "/pipeline",
+    status: "WIP",
   },
 ];
 
@@ -54,11 +55,11 @@ const Index = () => {
                   Tool
                 </span>
                 <span className="text-xs uppercase tracking-[0.2em] text-primary">
-                  Live
+                  {tool.status ?? "Live"}
                 </span>
               </div>
               <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
-                {tool.name}
+                {tool.name}{tool.status === "WIP" ? " (WIP)" : ""}
               </h2>
               <p className="mt-3 text-sm md:text-base text-foreground/80 leading-relaxed">
                 {tool.description}
