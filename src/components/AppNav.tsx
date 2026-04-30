@@ -34,7 +34,7 @@ export function AppNav() {
               `${linkBase} ${isActive ? linkActive : linkInactive}`
             }
           >
-            Pipeline Storyteller
+            Pipeline Storyteller (WIP)
           </NavLink>
         </nav>
       </div>
