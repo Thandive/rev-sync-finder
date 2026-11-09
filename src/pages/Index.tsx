@@ -83,14 +83,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-8 flex flex-col items-center text-center gap-4">
           <p className="text-sm text-foreground/80 max-w-xl leading-relaxed">
             Built by{" "}
-            <a
-              href="https://thandive.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
-            >
-              Thandive Sila
-            </a>
+          Thandive Sila
             . · Revenue & Billing Operations
           </p>
           <div className="flex gap-5 text-xs uppercase tracking-[0.2em]">
