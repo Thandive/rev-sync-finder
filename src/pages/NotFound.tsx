@@ -1,24 +1,19 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { AppNav } from "@/components/AppNav";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
+const NotFound = () => (
+  <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <AppNav />
+    <main className="flex-1 flex items-center justify-center px-5">
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+        <div className="text-xs uppercase tracking-[0.25em] text-label mb-3">// 404</div>
+        <h1 className="text-2xl font-semibold mb-6">This page does not exist.</h1>
+        <Link to="/" className="text-xs uppercase tracking-[0.2em] text-primary border-b border-primary/40 hover:border-primary pb-1">
+          Back to Rev-Sync →
+        </Link>
       </div>
-    </div>
-  );
-};
+    </main>
+  </div>
+);
 
 export default NotFound;

@@ -8,6 +8,9 @@ interface Props {
   className?: string;
   id?: string;
   ariaLabel?: string;
+  /** "decimal" shows a decimal point on mobile keyboards. */
+  inputMode?: "numeric" | "decimal";
+  step?: number | "any";
 }
 
 /**
@@ -22,6 +25,8 @@ export function NumberField({
   className,
   id,
   ariaLabel,
+  inputMode = "numeric",
+  step,
 }: Props) {
   const [display, setDisplay] = useState<string>(String(value));
 
@@ -35,7 +40,8 @@ export function NumberField({
       id={id}
       aria-label={ariaLabel}
       type="number"
-      inputMode="numeric"
+      inputMode={inputMode}
+      step={step}
       value={display}
       min={min}
       max={max}
