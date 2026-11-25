@@ -7,7 +7,7 @@
 // - The Anthropic key lives only in the server environment (ANTHROPIC_API_KEY). It never reaches the browser.
 // - The endpoint accepts numbers only. The prompt is built here from validated numbers and a fixed set of
 //   stage names, so it cannot be used as a general-purpose proxy to the model.
-// - Origin allow-list, per-IP rate limit and a small max_tokens keep casual abuse cheap.
+// - Origin allow-list, per-IP rate limit and a bounded max_tokens keep casual abuse cheap.
 //   The hard cap is the monthly spend limit set on the API key's workspace in the Claude Console.
 //
 // Self-contained on purpose (no imports from src/): Vercel compiles this file on its own.
@@ -160,6 +160,29 @@ export function rateLimited(ip: string, now = Date.now()): boolean {
   return false;
 }
 
+/**
+ * Claude 5.x models think by default, and thinking tokens count toward max_tokens.
+ * A short narrative needs no reasoning, so thinking is turned off on Haiku (which allows it);
+ * other models keep thinking and get room for it, so the text is never cut off.
+ */
+export function messagesRequest(model: string, prompt: string) {
+  const base = { model, system: SYSTEM_PROMPT, messages: [{ role: "user", content: prompt }] };
+  return model.startsWith("claude-haiku")
+    ? { ...base, max_tokens: 600, thinking: { type: "disabled" } }
+    : { ...base, max_tokens: 2_000 };
+}
+
+type ContentBlock = { type: string; text?: string };
+
+/** Joins every text block; ignores thinking and any other block types. */
+export function extractText(data: { content?: ContentBlock[] }): string {
+  return (data.content ?? [])
+    .filter((c) => c.type === "text" && typeof c.text === "string")
+    .map((c) => c.text)
+    .join("")
+    .trim();
+}
+
 export function resetRateLimit() {
   hits.clear();
 }
@@ -190,16 +213,19 @@ export default async function handler(req: Req, res: Res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
   if (!originAllowed(header(req, "origin"), env)) {
+    console.warn("Narrative refused: origin not allowed");
     return res.status(403).json({ error: "Origin not allowed" });
   }
 
   const ip = header(req, "x-forwarded-for").split(",")[0].trim() || req.socket?.remoteAddress || "unknown";
   if (rateLimited(ip)) {
+    console.warn("Narrative refused: rate limit");
     return res.status(429).json({ error: "Too many requests. Try again in a minute." });
   }
 
   const apiKey = env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.warn("Narrative refused: ANTHROPIC_API_KEY is not set");
     return res.status(503).json({ error: "AI narrative is not configured." });
   }
 
@@ -213,6 +239,7 @@ export default async function handler(req: Req, res: Res) {
   }
   const payload = validatePayload(body);
   if (typeof payload === "string") {
+    console.warn(`Narrative refused: ${payload}`);
     return res.status(400).json({ error: payload });
   }
 
@@ -228,21 +255,19 @@ export default async function handler(req: Req, res: Res) {
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify({
-        model,
-        max_tokens: 400,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: buildPrompt(payload) }],
-      }),
+      body: JSON.stringify(messagesRequest(model, buildPrompt(payload))),
     });
     if (!upstream.ok) {
       // Log status only; never log the key or the full upstream body.
       console.error(`Anthropic API error ${upstream.status}`);
       return res.status(502).json({ error: "The AI service did not respond correctly." });
     }
-    const data = (await upstream.json()) as { content?: { type: string; text?: string }[] };
-    const text = data.content?.find((c) => c.type === "text")?.text?.trim();
-    if (!text) return res.status(502).json({ error: "Empty response from the AI service." });
+    const data = (await upstream.json()) as { content?: ContentBlock[]; stop_reason?: string };
+    const text = extractText(data);
+    if (!text) {
+      console.error(`Anthropic response had no text (stop_reason: ${data.stop_reason ?? "unknown"})`);
+      return res.status(502).json({ error: "Empty response from the AI service." });
+    }
     return res.status(200).json({ text, model });
   } catch (err) {
     console.error(`Narrative request failed: ${(err as Error).name}`);

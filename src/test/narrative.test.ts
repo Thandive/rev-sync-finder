@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import handler, { buildPrompt, originAllowed, rateLimited, resetRateLimit, validatePayload } from "../../api/narrative";
+import handler, {
+  buildPrompt,
+  extractText,
+  messagesRequest,
+  originAllowed,
+  rateLimited,
+  resetRateLimit,
+  validatePayload,
+} from "../../api/narrative";
 import { analysePipeline, SAMPLE_PIPELINE } from "@/lib/pipeline";
 import { requestNarrative, toPayload } from "@/lib/narrative";
 
@@ -61,6 +69,23 @@ describe("buildPrompt", () => {
   });
 });
 
+describe("Claude request shape", () => {
+  it("turns thinking off on Haiku and leaves room for it on other models", () => {
+    expect(messagesRequest("claude-haiku-5-5", "p")).toMatchObject({ max_tokens: 600, thinking: { type: "disabled" } });
+    const sonnet = messagesRequest("claude-sonnet-5-5", "p");
+    expect(sonnet).not.toHaveProperty("thinking");
+    expect(sonnet.max_tokens).toBe(2_000);
+  });
+
+  it("reads text after a thinking block and joins split text blocks", () => {
+    expect(extractText({ content: [{ type: "thinking" }, { type: "text", text: " We are " }, { type: "text", text: "at risk. " }] })).toBe(
+      "We are at risk.",
+    );
+    expect(extractText({ content: [{ type: "thinking" }] })).toBe("");
+    expect(extractText({})).toBe("");
+  });
+});
+
 describe("abuse controls", () => {
   beforeEach(() => resetRateLimit());
 
@@ -107,7 +132,21 @@ describe("handler", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(init.headers["x-api-key"]).toBe("test-key-not-real");
-    expect(JSON.parse(init.body).max_tokens).toBe(400);
+    const sent = JSON.parse(init.body);
+    expect(sent.thinking).toEqual({ type: "disabled" });
+    expect(sent.max_tokens).toBe(600);
+  });
+
+  it("returns 502 and logs stop_reason when the answer has no text (e.g. only thinking)", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ content: [{ type: "thinking", thinking: "..." }], stop_reason: "max_tokens" }),
+    }) as unknown as typeof fetch;
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = mockRes();
+    await handler(req(), res);
+    expect(res.statusCode).toBe(502);
+    expect(log).toHaveBeenCalledWith("Anthropic response had no text (stop_reason: max_tokens)");
   });
 
   it("never returns the key to the client", async () => {
