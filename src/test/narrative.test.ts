@@ -71,7 +71,7 @@ describe("buildPrompt", () => {
 
 describe("Claude request shape", () => {
   it("turns thinking off on Haiku and leaves room for it on other models", () => {
-    expect(messagesRequest("claude-haiku-5-5", "p")).toMatchObject({ max_tokens: 600, thinking: { type: "disabled" } });
+    expect(messagesRequest("claude-haiku-5-5", "p")).toMatchObject({ max_tokens: 300, thinking: { type: "disabled" } });
     const sonnet = messagesRequest("claude-sonnet-5-5", "p");
     expect(sonnet).not.toHaveProperty("thinking");
     expect(sonnet.max_tokens).toBe(2_000);
@@ -134,7 +134,7 @@ describe("handler", () => {
     expect(init.headers["x-api-key"]).toBe("test-key-not-real");
     const sent = JSON.parse(init.body);
     expect(sent.thinking).toEqual({ type: "disabled" });
-    expect(sent.max_tokens).toBe(600);
+    expect(sent.max_tokens).toBe(300);
   });
 
   it("returns 502 and logs stop_reason when the answer has no text (e.g. only thinking)", async () => {

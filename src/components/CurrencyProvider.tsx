@@ -6,20 +6,23 @@ const STORAGE_KEY = "revsync-currency";
 
 function readStored(): Currency {
   try {
-    const v = localStorage.getItem(STORAGE_KEY);
+    const v = sessionStorage.getItem(STORAGE_KEY);
     return isCurrency(v) ? v : DEFAULT_CURRENCY;
   } catch {
     return DEFAULT_CURRENCY;
   }
 }
 
-/** Remembers the viewer's display currency in this browser only. */
+/**
+ * Remembers the viewer's display currency for this visit only (sessionStorage, cleared when the
+ * browser closes), so it carries across the two tools without any persistent storage on the device.
+ */
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setState] = useState<Currency>(readStored);
   const setCurrency = useCallback((c: Currency) => {
     setState(c);
     try {
-      localStorage.setItem(STORAGE_KEY, c);
+      sessionStorage.setItem(STORAGE_KEY, c);
     } catch {
       // storage unavailable: keep the choice for this visit only
     }

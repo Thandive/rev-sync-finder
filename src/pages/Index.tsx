@@ -28,7 +28,7 @@ const TOOLS: ToolCard[] = [
     points: [
       "Weighted and time-adjusted coverage by stage",
       "Gap, deals needed and timing slip",
-      "VP-ready narrative written by Claude",
+      "AI-written VP-ready narrative",
     ],
     href: "/pipeline",
     status: "Live",
@@ -103,7 +103,7 @@ const Index = () => {
           </p>
           <p className="text-xs text-label leading-relaxed">
             The one exception is the optional AI narrative in the Pipeline Storyteller: when you ask for it, the pipeline
-            figures (numbers only) are sent to the Claude API to write the text.
+            figures (numbers only) are sent to an AI model to write the text.
           </p>
         </section>
       </main>

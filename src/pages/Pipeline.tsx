@@ -268,8 +268,8 @@ export default function PipelineStoryteller() {
             >
               {!narrative && !loading && (
                 <p className="text-sm text-label-mid leading-relaxed">
-                  Generate a 3–4 sentence summary of the numbers above, written for a VP of Revenue: the bottom line, what
-                  it means, and one recommendation.
+                  Generate a short summary of the numbers above, written for a VP of Revenue: the bottom line, the main
+                  risk and one recommendation.
                 </p>
               )}
               {loading && <p className="text-sm text-label-mid font-mono-tabular">Analysing pipeline…</p>}
@@ -278,14 +278,14 @@ export default function PipelineStoryteller() {
                   <p className="border-l-2 border-primary pl-4 text-sm md:text-base leading-relaxed text-foreground/90">{narrative.text}</p>
                   <p className="mt-3 text-[11px] text-label leading-snug">
                     {narrative.source === "ai"
-                      ? "Written by Claude (Anthropic) from the figures above."
+                      ? "AI-generated from the figures above."
                       : `Rule-based summary from the figures above (${narrative.reason ?? "AI narrative unavailable"}).`}
                   </p>
                 </div>
               )}
               <p className="mt-5 pt-3 border-t border-border-faint text-[11px] text-label leading-snug">
                 The calculations run in your browser. When you click Generate, the figures above (numbers only, no names or
-                text) are sent to the Claude API to write the narrative. Nothing is stored.
+                text) are sent to an AI model to write the narrative. Nothing is stored.
               </p>
             </Panel>
           </div>

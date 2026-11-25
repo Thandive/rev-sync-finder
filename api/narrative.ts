@@ -112,10 +112,11 @@ function money(n: number, currency: string): string {
 }
 
 export const SYSTEM_PROMPT =
-  "You are a Revenue Operations advisor writing for a VP of Revenue. Write 3 to 4 sentences of plain prose: " +
-  "no markdown, no bullet points, no headings. Start with the bottom line. Use only the numbers provided and do not " +
-  "invent deals, names or causes. Translate the numbers into business implications, and end with exactly one " +
-  "specific, actionable recommendation. Write amounts with the same currency symbol as the figures provided.";
+  "You are a Revenue Operations advisor writing for a VP of Revenue who has ten seconds to read. " +
+  "Write 2 to 3 short sentences, 60 words at most, as plain prose: no markdown, no bullet points, no headings. " +
+  "Sentence one: the bottom line with the key number. Then the main risk. End with exactly one specific, actionable " +
+  "recommendation. Use only the numbers provided, quote only the few that matter, and do not invent deals, names or " +
+  "causes. Write amounts with the same currency symbol as the figures provided.";
 
 export function buildPrompt(p: NarrativePayload): string {
   const amount = (n: number) => money(n, p.currency);
@@ -168,7 +169,7 @@ export function rateLimited(ip: string, now = Date.now()): boolean {
 export function messagesRequest(model: string, prompt: string) {
   const base = { model, system: SYSTEM_PROMPT, messages: [{ role: "user", content: prompt }] };
   return model.startsWith("claude-haiku")
-    ? { ...base, max_tokens: 600, thinking: { type: "disabled" } }
+    ? { ...base, max_tokens: 300, thinking: { type: "disabled" } }
     : { ...base, max_tokens: 2_000 };
 }
 
