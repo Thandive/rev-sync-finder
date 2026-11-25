@@ -6,7 +6,9 @@
 //
 // Every assumption the model relies on lives in `Assumptions` and is editable in the UI.
 // They are working assumptions chosen to be conservative and easy to challenge,
-// not sourced industry benchmarks.
+// not sourced industry benchmarks. Amounts are in whatever currency the user works in.
+
+import { Currency, DEFAULT_CURRENCY, formatMoney, formatMoneyExact } from "./currency";
 
 export type ReconciliationMode = "Manual" | "Partially Automated" | "Fully Automated";
 export type DiscrepancyFrequency = "Rarely" | "Occasionally" | "Frequently";
@@ -15,11 +17,11 @@ export type SystemCount = "1" | "2" | "3+";
 export type RiskScore = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export interface CalculatorInputs {
-  /** Annual recurring revenue, EUR. */
+  /** Annual recurring revenue. */
   arr: number;
   /** New deals closed per month. */
   dealsPerMonth: number;
-  /** Average contract value of a new deal, EUR per year. */
+  /** Average contract value of a new deal, per year. */
   acv: number;
   /** Days from deal close (or service start) to invoice raised. */
   delayDays: number;
@@ -48,7 +50,7 @@ export interface Assumptions {
   creditNoteWriteDownPct: Record<CreditNoteProcess, number>;
   /** Reconciliation effort per customer account per month, minutes. */
   reconMinutesPerAccount: Record<ReconciliationMode, number>;
-  /** Fully loaded cost of one hour of Finance / RevOps time, EUR. */
+  /** Fully loaded cost of one hour of Finance / RevOps time. */
   hourlyCost: number;
   /** How much the number of revenue systems scales reconciliation effort and data-quality impact. */
   systemsMultiplier: Record<SystemCount, number>;
@@ -60,7 +62,7 @@ export const DEFAULT_ASSUMPTIONS: Assumptions = {
   discrepancyRatePct: { Rarely: 1, Occasionally: 6, Frequently: 15 },
   discrepancyNetLossPct: 5,
   dataQualityImpactPct: 1.5,
-  creditNoteWriteDownPct: { Yes: 0, "Ad Hoc": 0.3, No: 0.8 },
+  creditNoteWriteDownPct: { Yes: 0.05, "Ad Hoc": 0.15, No: 0.4 },
   reconMinutesPerAccount: { Manual: 6, "Partially Automated": 3, "Fully Automated": 0.5 },
   hourlyCost: 40,
   systemsMultiplier: { "1": 0.5, "2": 1, "3+": 1.75 },
@@ -142,6 +144,7 @@ export function safe(n: number): number {
 export function calculate(
   inputs: CalculatorInputs,
   assumptions: Assumptions = DEFAULT_ASSUMPTIONS,
+  currency: Currency = DEFAULT_CURRENCY,
 ): CalculatorResults {
   const arr = safe(inputs.arr);
   const dealsPerMonth = safe(inputs.dealsPerMonth);
@@ -188,7 +191,7 @@ export function calculate(
     manualProcess,
   };
 
-  const e = formatEUR;
+  const e = (n: number) => formatMoney(n, currency);
   const explanations: Record<LeakageCategoryKey, string> = {
     uninvoiced: `${e(newBookings)} new bookings × ${fmtPct(uninvoicedPct)} uninvoiced × ${fmtPct(a.uninvoicedNeverRecoveredPct)} never recovered`,
     discrepancies: `${e(arr)} ARR × ${fmtPct(discrepancyRate)} invoices mismatched × ${fmtPct(a.discrepancyNetLossPct)} net loss`,
@@ -222,25 +225,14 @@ export function calculate(
   };
 }
 
+/** 6 → "6%", 1.5 → "1.5%", 0.05 → "0.05%". */
 export function fmtPct(n: number): string {
-  const v = safe(n);
-  return `${Number.isInteger(v) ? v : v.toFixed(1)}%`;
+  return `${parseFloat(safe(n).toFixed(2))}%`;
 }
 
-export function formatEUR(n: number): string {
-  if (!Number.isFinite(n)) return "€0";
-  const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `€${(n / 1_000_000).toFixed(2)}M`;
-  if (abs >= 1_000) return `€${(n / 1_000).toFixed(1)}K`;
-  return `€${Math.round(n).toLocaleString("en-US")}`;
-}
+export { formatMoney, formatMoneyExact };
 
-export function formatEURExact(n: number): string {
-  if (!Number.isFinite(n)) return "€0";
-  return `€${Math.round(n).toLocaleString("en-US")}`;
-}
-
-// Log-scale slider helpers — ARR €100K to €50M
+// Log-scale slider helpers — ARR 100K to 50M
 export const ARR_MIN = 100_000;
 export const ARR_MAX = 50_000_000;
 
@@ -288,9 +280,10 @@ export const SCORE_MEANING: Record<RiskScore, string> = {
   CRITICAL: "Severe leakage. Several controls are missing at once, and the cost repeats every billing cycle.",
 };
 
-export function buildSummary(results: CalculatorResults): string {
+export function buildSummary(results: CalculatorResults, currency: Currency = DEFAULT_CURRENCY): string {
   const top = results.topCategory;
-  return `${SCORE_MEANING[results.riskScore]} The largest category is ${CATEGORY_LABELS[top].toLowerCase()} at ${formatEUR(
+  return `${SCORE_MEANING[results.riskScore]} The largest category is ${CATEGORY_LABELS[top].toLowerCase()} at ${formatMoney(
     results.categories[top],
+    currency,
   )} a year. ${RECOMMENDATIONS[top]}`;
 }

@@ -4,8 +4,8 @@ import {
   CalculatorResults,
   CATEGORY_LABELS,
   COST_CATEGORIES,
-  formatEUR,
-  formatEURExact,
+  formatMoney,
+  formatMoneyExact,
   LeakageCategoryKey,
   REVENUE_CATEGORIES,
   RiskScore,
@@ -13,6 +13,7 @@ import {
   buildSummary,
 } from "@/lib/calculations";
 import { InfoTooltip } from "@/components/InfoTooltip";
+import { useCurrency } from "@/lib/currency-context";
 
 interface Props {
   results: CalculatorResults;
@@ -53,6 +54,7 @@ function CategoryGroup({
   max: number;
   subtotal: number;
 }) {
+  const { currency } = useCurrency();
   return (
     <div>
       <div className="flex items-baseline justify-between border-b border-border-faint pb-2 mb-4">
@@ -60,7 +62,7 @@ function CategoryGroup({
           {title}
           <InfoTooltip text={tooltip} />
         </span>
-        <span className="font-mono-tabular text-sm text-primary">{formatEURExact(subtotal)}</span>
+        <span className="font-mono-tabular text-sm text-primary">{formatMoneyExact(subtotal, currency)}</span>
       </div>
       <div className="space-y-4">
         {keys.map((k) => {
@@ -69,7 +71,7 @@ function CategoryGroup({
             <div key={k}>
               <div className="flex justify-between gap-3 text-xs mb-1.5">
                 <span className="text-foreground/85 uppercase tracking-[0.08em]">{CATEGORY_LABELS[k]}</span>
-                <span className="font-mono-tabular text-primary shrink-0">{formatEUR(v)}</span>
+                <span className="font-mono-tabular text-primary shrink-0">{formatMoney(v, currency)}</span>
               </div>
               <div className="h-1.5 bg-[hsl(var(--background))] border-b border-border-faint">
                 <div className="h-full bg-primary transition-all duration-300" style={{ width: `${(v / max) * 100}%` }} />
@@ -87,8 +89,9 @@ function CategoryGroup({
 
 export function ResultsPanel({ results, inputs, assumptions }: Props) {
   const { riskScore, exposureRatio, totalExposure, revenueLeakage, costToOperate, categories, topCategory } = results;
+  const { currency } = useCurrency();
   const rs = riskStyles[riskScore];
-  const summary = buildSummary(results);
+  const summary = buildSummary(results, currency);
   const max = Math.max(...Object.values(categories), 1);
 
   return (
@@ -111,12 +114,12 @@ export function ResultsPanel({ results, inputs, assumptions }: Props) {
 
         <div className="mt-5 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1.5 text-xs uppercase tracking-[0.14em] font-mono-tabular">
           <span className="text-label">Revenue leakage</span>
-          <span className="text-right text-foreground/85">{formatEURExact(revenueLeakage)}</span>
+          <span className="text-right text-foreground/85">{formatMoneyExact(revenueLeakage, currency)}</span>
           <span className="text-label">+ Cost to operate</span>
-          <span className="text-right text-foreground/85">{formatEURExact(costToOperate)}</span>
+          <span className="text-right text-foreground/85">{formatMoneyExact(costToOperate, currency)}</span>
           <span className="text-foreground/90 border-t border-border-faint pt-1.5">= Estimated annual exposure</span>
           <span className="text-right text-primary text-base border-t border-border-faint pt-1 font-semibold">
-            {formatEURExact(totalExposure)}
+            {formatMoneyExact(totalExposure, currency)}
           </span>
         </div>
 
@@ -129,7 +132,7 @@ export function ResultsPanel({ results, inputs, assumptions }: Props) {
         <div className="mt-1 font-mono text-sm md:text-base text-foreground/90">
           <span className="text-primary font-semibold">{CATEGORY_LABELS[topCategory]}</span>
           <span className="text-label-mid"> — </span>
-          <span className="text-primary font-mono-tabular">{formatEURExact(categories[topCategory])}</span>
+          <span className="text-primary font-mono-tabular">{formatMoneyExact(categories[topCategory], currency)}</span>
           <span className="text-label-low text-xs"> / yr · {share(categories[topCategory], inputs.arr)} of ARR</span>
         </div>
       </div>
@@ -162,14 +165,14 @@ export function ResultsPanel({ results, inputs, assumptions }: Props) {
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             type="button"
-            onClick={async () => (await import("@/lib/exports")).downloadPDF(inputs, results, assumptions, summary)}
+            onClick={async () => (await import("@/lib/exports")).downloadPDF(inputs, results, assumptions, currency, summary)}
             className="flex-1 px-4 py-2.5 text-xs uppercase tracking-[0.2em] rounded-none bg-transparent border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             Download PDF
           </button>
           <button
             type="button"
-            onClick={async () => (await import("@/lib/exports")).downloadCSV(inputs, results, assumptions)}
+            onClick={async () => (await import("@/lib/exports")).downloadCSV(inputs, results, assumptions, currency)}
             className="flex-1 px-4 py-2.5 text-xs uppercase tracking-[0.2em] rounded-none bg-transparent border border-rule text-label-mid hover:border-primary hover:text-primary transition-colors"
           >
             Download CSV

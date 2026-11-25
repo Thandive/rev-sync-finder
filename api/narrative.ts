@@ -35,9 +35,11 @@ const STAGES: Record<string, string> = {
   commit: "Commit",
 };
 const STATUSES = ["TARGET MET", "ON TRACK", "AT RISK", "BEHIND", "CRITICAL"];
-const MAX_EUR = 10_000_000_000;
+const MAX_AMOUNT = 10_000_000_000;
+const SYMBOLS: Record<string, string> = { USD: "$", EUR: "€", GBP: "£" };
 
 export interface NarrativePayload {
+  currency: string;
   status: string;
   quarterTarget: number;
   closedWon: number;
@@ -61,22 +63,23 @@ function num(v: unknown, max: number): number | null {
 export function validatePayload(body: unknown): NarrativePayload | string {
   if (!body || typeof body !== "object") return "Body must be a JSON object.";
   const b = body as Json;
+  if (typeof b.currency !== "string" || !(b.currency in SYMBOLS)) return "Invalid currency.";
   if (typeof b.status !== "string" || !STATUSES.includes(b.status)) return "Invalid status.";
 
   const limits: Record<string, number> = {
-    quarterTarget: MAX_EUR,
-    closedWon: MAX_EUR,
-    remainingTarget: MAX_EUR,
+    quarterTarget: MAX_AMOUNT,
+    closedWon: MAX_AMOUNT,
+    remainingTarget: MAX_AMOUNT,
     daysRemaining: 366,
-    totalPipeline: MAX_EUR,
-    weightedPipeline: MAX_EUR,
-    inQuarterPipeline: MAX_EUR,
+    totalPipeline: MAX_AMOUNT,
+    weightedPipeline: MAX_AMOUNT,
+    inQuarterPipeline: MAX_AMOUNT,
     coverage: 10_000,
-    gap: MAX_EUR,
+    gap: MAX_AMOUNT,
     dealsNeeded: 1_000_000,
-    avgDealSize: MAX_EUR,
+    avgDealSize: MAX_AMOUNT,
   };
-  const out: Partial<NarrativePayload> = { status: b.status };
+  const out: Partial<NarrativePayload> = { currency: b.currency, status: b.status };
   for (const [key, max] of Object.entries(limits)) {
     const v = num(b[key], max);
     if (v === null) return `Invalid ${key}.`;
@@ -89,11 +92,11 @@ export function validatePayload(body: unknown): NarrativePayload | string {
     if (!raw || typeof raw !== "object") return "Invalid stage.";
     const s = raw as Json;
     if (typeof s.id !== "string" || !(s.id in STAGES)) return "Invalid stage id.";
-    const value = num(s.value, MAX_EUR);
+    const value = num(s.value, MAX_AMOUNT);
     const winRate = num(s.winRate, 100);
     const cycleDays = num(s.cycleDays, 3650);
-    const weighted = num(s.weighted, MAX_EUR);
-    const inQuarter = num(s.inQuarter, MAX_EUR);
+    const weighted = num(s.weighted, MAX_AMOUNT);
+    const inQuarter = num(s.inQuarter, MAX_AMOUNT);
     if (value === null || winRate === null || cycleDays === null || weighted === null || inQuarter === null) {
       return `Invalid numbers for stage ${s.id}.`;
     }
@@ -103,30 +106,33 @@ export function validatePayload(body: unknown): NarrativePayload | string {
   return out as NarrativePayload;
 }
 
-const eur = (n: number) =>
-  n >= 1_000_000 ? `€${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `€${Math.round(n / 1_000)}K` : `€${Math.round(n)}`;
+function money(n: number, currency: string): string {
+  const s = SYMBOLS[currency] ?? "$";
+  return n >= 1_000_000 ? `${s}${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `${s}${Math.round(n / 1_000)}K` : `${s}${Math.round(n)}`;
+}
 
 export const SYSTEM_PROMPT =
   "You are a Revenue Operations advisor writing for a VP of Revenue. Write 3 to 4 sentences of plain prose: " +
   "no markdown, no bullet points, no headings. Start with the bottom line. Use only the numbers provided and do not " +
   "invent deals, names or causes. Translate the numbers into business implications, and end with exactly one " +
-  "specific, actionable recommendation. Use euros.";
+  "specific, actionable recommendation. Write amounts with the same currency symbol as the figures provided.";
 
 export function buildPrompt(p: NarrativePayload): string {
+  const amount = (n: number) => money(n, p.currency);
   const stageLines = p.stages
     .map(
       (s) =>
-        `- ${STAGES[s.id]}: ${eur(s.value)} open, ${Math.round(s.winRate)}% win rate, ${Math.round(s.cycleDays)}-day average cycle to close, ` +
-        `${eur(s.weighted)} weighted, ${eur(s.inQuarter)} expected to close this quarter`,
+        `- ${STAGES[s.id]}: ${amount(s.value)} open, ${Math.round(s.winRate)}% win rate, ${Math.round(s.cycleDays)}-day average cycle to close, ` +
+        `${amount(s.weighted)} weighted, ${amount(s.inQuarter)} expected to close this quarter`,
     )
     .join("\n");
   return [
     `Quarter status: ${p.status}`,
-    `Quarter target: ${eur(p.quarterTarget)}; closed-won so far: ${eur(p.closedWon)}; still needed: ${eur(p.remainingTarget)}`,
+    `Quarter target: ${amount(p.quarterTarget)}; closed-won so far: ${amount(p.closedWon)}; still needed: ${amount(p.remainingTarget)}`,
     `Days left in the quarter: ${Math.round(p.daysRemaining)}`,
-    `Open pipeline: ${eur(p.totalPipeline)}; weighted: ${eur(p.weightedPipeline)}; weighted and able to close before quarter end: ${eur(p.inQuarterPipeline)}`,
+    `Open pipeline: ${amount(p.totalPipeline)}; weighted: ${amount(p.weightedPipeline)}; weighted and able to close before quarter end: ${amount(p.inQuarterPipeline)}`,
     `Coverage of what is still needed (time-adjusted weighted pipeline): ${Math.round(p.coverage * 100)}%`,
-    `Gap: ${eur(p.gap)}, about ${Math.round(p.dealsNeeded)} deals at an average of ${eur(p.avgDealSize)}`,
+    `Gap: ${amount(p.gap)}, about ${Math.round(p.dealsNeeded)} deals at an average of ${amount(p.avgDealSize)}`,
     `Pipeline by stage:`,
     stageLines,
     ``,

@@ -4,12 +4,14 @@ import { buildCSV } from "./exports";
 
 describe("buildCSV", () => {
   const results = calculate(DEFAULT_INPUTS);
-  const csv = buildCSV(DEFAULT_INPUTS, results, DEFAULT_ASSUMPTIONS, new Date("2026-11-24T00:00:00Z"));
+  const csv = buildCSV(DEFAULT_INPUTS, results, DEFAULT_ASSUMPTIONS, "USD", new Date("2026-11-24T00:00:00Z"));
   const lines = csv.split("\n");
 
   it("has one total that matches the screen", () => {
     const total = lines.find((l) => l.startsWith("Total,"));
-    expect(total).toBe(`Total,Estimated annual exposure,${Math.round(results.totalExposure)},1.39%`);
+    expect(total).toBe(`Total,Estimated annual exposure,${Math.round(results.totalExposure)},1.24%`);
+    expect(lines).toContain("Currency,USD");
+    expect(csv).toContain("Estimated annual exposure (USD)");
     expect(lines).toContain("Risk score,MEDIUM");
   });
 

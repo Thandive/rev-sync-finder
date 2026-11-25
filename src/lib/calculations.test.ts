@@ -10,7 +10,8 @@ import {
   REVENUE_CATEGORIES,
   arrToSlider,
   buildSummary,
-  formatEUR,
+  formatMoney,
+  formatMoneyExact,
   scoreFor,
   sliderToArr,
 } from "./calculations";
@@ -40,11 +41,11 @@ describe("calculate — one consistent total", () => {
     expect(r.accounts).toBe(250);
     expect(r.categories.uninvoiced).toBeCloseTo(2_400_000 * 0.05 * 0.15, 6); // 18,000
     expect(r.categories.discrepancies).toBeCloseTo(5_000_000 * 0.06 * 0.05, 6); // 15,000
-    expect(r.categories.creditNotes).toBeCloseTo(5_000_000 * 0.003, 6); // 15,000
+    expect(r.categories.creditNotes).toBeCloseTo(5_000_000 * 0.0015, 6); // 7,500
     expect(r.categories.dataQuality).toBeCloseTo(5_000_000 * 0.1 * 0.015 * 1, 6); // 7,500
     expect(r.categories.billingDelay).toBeCloseTo(2_400_000 * (15 / 365) * 0.08, 6); // ≈ 7,890
     expect(r.categories.manualProcess).toBeCloseTo(250 * 12 * (3 / 60) * 1 * 40, 6); // 6,000
-    expect(Math.round(r.totalExposure)).toBe(69_390);
+    expect(Math.round(r.totalExposure)).toBe(61_890);
     expect(r.riskScore).toBe("MEDIUM");
     expect(r.topCategory).toBe("uninvoiced");
   });
@@ -90,7 +91,7 @@ describe("calculate — direction and bounds", () => {
     expect(bad.totalExposure).toBeGreaterThan(good.totalExposure);
   });
 
-  it("a clean stack scores LOW and a broken one CRITICAL", () => {
+  it("a clean stack scores LOW; a broken one HIGH, and CRITICAL at higher deal volume", () => {
     const clean = calculate({
       ...base,
       delayDays: 0,
@@ -102,7 +103,7 @@ describe("calculate — direction and bounds", () => {
       systems: "1",
     });
     expect(clean.riskScore).toBe("LOW");
-    const broken = calculate({
+    const brokenInputs: CalculatorInputs = {
       ...base,
       delayDays: 90,
       uninvoicedPct: 30,
@@ -111,8 +112,9 @@ describe("calculate — direction and bounds", () => {
       dirtyDataPct: 40,
       creditNoteProcess: "No",
       systems: "3+",
-    });
-    expect(broken.riskScore).toBe("CRITICAL");
+    };
+    expect(calculate(brokenInputs).riskScore).toBe("HIGH"); // ≈ 5.7% of ARR
+    expect(calculate({ ...brokenInputs, dealsPerMonth: 20 }).riskScore).toBe("CRITICAL");
   });
 
   it("is safe with zero, blank or invalid numbers", () => {
@@ -149,11 +151,26 @@ describe("risk bands", () => {
 });
 
 describe("helpers", () => {
-  it("formats euros", () => {
-    expect(formatEUR(1_250_000)).toBe("€1.25M");
-    expect(formatEUR(18_000)).toBe("€18.0K");
-    expect(formatEUR(950)).toBe("€950");
-    expect(formatEUR(NaN)).toBe("€0");
+  it("formats money in USD by default, and in EUR or GBP on request", () => {
+    expect(formatMoney(1_250_000)).toBe("$1.25M");
+    expect(formatMoney(18_000)).toBe("$18.0K");
+    expect(formatMoney(950)).toBe("$950");
+    expect(formatMoney(NaN)).toBe("$0");
+    expect(formatMoney(18_000, "EUR")).toBe("€18.0K");
+    expect(formatMoneyExact(61_890.4, "GBP")).toBe("£61,890");
+  });
+
+  it("currency changes the symbol only, never the amounts", () => {
+    const usd = calculate(base, DEFAULT_ASSUMPTIONS, "USD");
+    const eur = calculate(base, DEFAULT_ASSUMPTIONS, "EUR");
+    expect(eur.totalExposure).toBe(usd.totalExposure);
+    expect(usd.explanations.uninvoiced).toContain("$2.40M new bookings");
+    expect(eur.explanations.uninvoiced).toContain("€2.40M new bookings");
+  });
+
+  it("shows small percentages exactly", () => {
+    const r = calculate({ ...base, creditNoteProcess: "Yes" });
+    expect(r.explanations.creditNotes).toContain("× 0.05% written down");
   });
 
   it("ARR slider round-trips and clamps", () => {

@@ -7,6 +7,8 @@ import {
   ReconciliationMode,
   SystemCount,
 } from "@/lib/calculations";
+import { CURRENCY_SYMBOL } from "@/lib/currency";
+import { useCurrency } from "@/lib/currency-context";
 
 interface Props {
   value: Assumptions;
@@ -91,6 +93,7 @@ const RECON: readonly ReconciliationMode[] = ["Manual", "Partially Automated", "
 const SYSTEMS: readonly SystemCount[] = ["1", "2", "3+"];
 
 export function AssumptionsPanel({ value, onChange }: Props) {
+  const { currency } = useCurrency();
   const set = <K extends keyof Assumptions>(key: K, v: Assumptions[K]) => onChange({ ...value, [key]: v });
   const isDefault = JSON.stringify(value) === JSON.stringify(DEFAULT_ASSUMPTIONS);
 
@@ -130,7 +133,7 @@ export function AssumptionsPanel({ value, onChange }: Props) {
         </Row>
         <Group title="Reconciliation effort, by answer" unit="min / account / month" keys={RECON} values={value.reconMinutesPerAccount} onChange={(v) => set("reconMinutesPerAccount", v)} />
         <Group title="Systems factor on reconciliation and data quality" unit="×" keys={SYSTEMS} values={value.systemsMultiplier} onChange={(v) => set("systemsMultiplier", v)} />
-        <Row label="Loaded cost of one Finance / RevOps hour" unit="€">
+        <Row label="Loaded cost of one Finance / RevOps hour" unit={CURRENCY_SYMBOL[currency]}>
           <Num value={value.hourlyCost} ariaLabel="Hourly cost" onChange={(n) => set("hourlyCost", n)} />
         </Row>
 

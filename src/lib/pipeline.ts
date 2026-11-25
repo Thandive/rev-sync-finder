@@ -1,11 +1,13 @@
 // Rev-Sync — Pipeline coverage model.
-// Pure functions, no imports, so the same logic is easy to test and to reason about.
+// Pure functions, so the same logic is easy to test and to reason about.
+
+import { Currency, DEFAULT_CURRENCY, formatMoney } from "./currency";
 
 export type StageId = "discovery" | "qualified" | "proposal" | "negotiation" | "commit";
 
 export interface StageInput {
   id: StageId;
-  /** Open pipeline value in this stage, EUR. */
+  /** Open pipeline value in this stage. */
   value: number;
   /** Probability a deal in this stage closes-won, %. */
   winRate: number;
@@ -14,13 +16,13 @@ export interface StageInput {
 }
 
 export interface PipelineInputs {
-  /** Annual new-business quota, EUR. */
+  /** Annual new-business quota. */
   annualQuota: number;
-  /** Average deal size, EUR. */
+  /** Average deal size. */
   avgDealSize: number;
   /** % of the quarter already elapsed. */
   quarterProgress: number;
-  /** Closed-won this quarter so far, EUR. */
+  /** Closed-won this quarter so far. */
   closedWon: number;
   stages: StageInput[];
 }
@@ -156,28 +158,30 @@ export function analysePipeline(input: PipelineInputs): PipelineResults {
   };
 }
 
-export function fmtEUR(n: number): string {
-  if (!Number.isFinite(n)) return "€0";
-  const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `€${(n / 1_000_000).toFixed(2)}M`;
-  if (abs >= 1_000) return `€${(n / 1_000).toFixed(0)}K`;
-  return `€${Math.round(n)}`;
+/** Compact amount for the pipeline view: $1.83M, $480K. */
+export function fmtMoney(n: number, currency: Currency = DEFAULT_CURRENCY): string {
+  return formatMoney(n, currency, 0);
 }
 
 /** Rule-based narrative: always available, used when the AI narrative is not. */
-export function ruleBasedNarrative(input: PipelineInputs, r: PipelineResults): string {
+export function ruleBasedNarrative(
+  input: PipelineInputs,
+  r: PipelineResults,
+  currency: Currency = DEFAULT_CURRENCY,
+): string {
+  const money = (n: number) => fmtMoney(n, currency);
   const pctCov = Math.round(r.coverage * 100);
   const days = Math.round(r.daysRemaining);
   if (r.status === "TARGET MET") {
-    return `The quarter target of ${fmtEUR(r.quarterTarget)} is already closed-won with ${days} days to go. Everything still in pipeline is upside, so the priority is protecting next quarter: keep ${fmtEUR(r.totalPipeline)} of open pipeline moving rather than pulling deals forward.`;
+    return `The quarter target of ${money(r.quarterTarget)} is already closed-won with ${days} days to go. Everything still in pipeline is upside, so the priority is protecting next quarter: keep ${money(r.totalPipeline)} of open pipeline moving rather than pulling deals forward.`;
   }
   const lead =
     r.status === "ON TRACK"
-      ? `We are on track: ${fmtEUR(r.inQuarterPipeline)} of weighted pipeline can realistically close in the ${days} days left, ${pctCov}% of the ${fmtEUR(r.remainingTarget)} still needed.`
-      : `We are ${r.status === "AT RISK" ? "at risk" : r.status === "BEHIND" ? "behind" : "critically short"}: only ${fmtEUR(r.inQuarterPipeline)} of weighted pipeline can realistically close in the ${days} days left, ${pctCov}% of the ${fmtEUR(r.remainingTarget)} still needed.`;
-  const gap = r.gap > 0 ? ` The gap is ${fmtEUR(r.gap)}, about ${r.dealsNeeded} deal${r.dealsNeeded === 1 ? "" : "s"} at ${fmtEUR(input.avgDealSize)}.` : "";
+      ? `We are on track: ${money(r.inQuarterPipeline)} of weighted pipeline can realistically close in the ${days} days left, ${pctCov}% of the ${money(r.remainingTarget)} still needed.`
+      : `We are ${r.status === "AT RISK" ? "at risk" : r.status === "BEHIND" ? "behind" : "critically short"}: only ${money(r.inQuarterPipeline)} of weighted pipeline can realistically close in the ${days} days left, ${pctCov}% of the ${money(r.remainingTarget)} still needed.`;
+  const gap = r.gap > 0 ? ` The gap is ${money(r.gap)}, about ${r.dealsNeeded} deal${r.dealsNeeded === 1 ? "" : "s"} at ${money(input.avgDealSize)}.` : "";
   const risk = r.biggestSlip
-    ? ` Timing is the main risk in ${r.biggestSlip.label}: ${fmtEUR(r.biggestSlip.slip)} of weighted pipeline there is likely to close after quarter end, because its ${r.biggestSlip.cycleDays}-day cycle is longer than the ${days} days left.`
+    ? ` Timing is the main risk in ${r.biggestSlip.label}: ${money(r.biggestSlip.slip)} of weighted pipeline there is likely to close after quarter end, because its ${r.biggestSlip.cycleDays}-day cycle is longer than the ${days} days left.`
     : ` Timing is not the constraint: every stage's typical cycle fits inside the ${days} days left.`;
   // Where the in-quarter number actually sits: the late stage with the most value expected to close.
   const anchor = r.stages
@@ -187,8 +191,8 @@ export function ruleBasedNarrative(input: PipelineInputs, r: PipelineResults): s
   const window = days >= 14 ? "the next two weeks" : "the remaining days";
   const action = anchor
     ? r.status === "ON TRACK"
-      ? ` Recommendation: protect the ${fmtEUR(anchor.inQuarter)} expected from ${anchor.label} with weekly deal reviews, and do not discount to pull later deals forward.`
-      : ` Recommendation: spend ${window} on ${anchor.label}, where ${fmtEUR(anchor.inQuarter)} of this quarter's number sits, and qualify out stalled early-stage deals so the forecast only counts what can close.`
-    : ` Recommendation: there is no late-stage pipeline to close this quarter, so reset the forecast now and focus on building ${fmtEUR(r.gap)} of qualified pipeline for next quarter.`;
+      ? ` Recommendation: protect the ${money(anchor.inQuarter)} expected from ${anchor.label} with weekly deal reviews, and do not discount to pull later deals forward.`
+      : ` Recommendation: spend ${window} on ${anchor.label}, where ${money(anchor.inQuarter)} of this quarter's number sits, and qualify out stalled early-stage deals so the forecast only counts what can close.`
+    : ` Recommendation: there is no late-stage pipeline to close this quarter, so reset the forecast now and focus on building ${money(r.gap)} of qualified pipeline for next quarter.`;
   return lead + gap + risk + action;
 }

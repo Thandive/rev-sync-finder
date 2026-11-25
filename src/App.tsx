@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CurrencyProvider } from "@/components/CurrencyProvider";
 import Index from "./pages/Index.tsx";
 import Calculator from "./pages/Calculator.tsx";
 import Pipeline from "./pages/Pipeline.tsx";
@@ -13,6 +14,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <CurrencyProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -24,6 +26,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </CurrencyProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

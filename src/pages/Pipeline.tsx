@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NumberField } from "@/components/NumberField";
@@ -7,7 +7,7 @@ import { inputClass, sliderClass } from "@/lib/styles";
 import {
   analysePipeline,
   CoverageStatus,
-  fmtEUR,
+  fmtMoney,
   PipelineInputs,
   SAMPLE_PIPELINE,
   StageId,
@@ -15,6 +15,9 @@ import {
   STAGE_LABELS,
 } from "@/lib/pipeline";
 import { NarrativeResult, requestNarrative } from "@/lib/narrative";
+import { CurrencySwitch } from "@/components/CurrencySwitch";
+import { CURRENCY_SYMBOL } from "@/lib/currency";
+import { useCurrency } from "@/lib/currency-context";
 
 const statusColor: Record<CoverageStatus, string> = {
   "TARGET MET": "--risk-low",
@@ -64,11 +67,17 @@ function Metric({ label, value, sub, color }: { label: string; value: string; su
 }
 
 export default function PipelineStoryteller() {
+  const { currency } = useCurrency();
+  const sym = CURRENCY_SYMBOL[currency];
+  const money = (n: number) => fmtMoney(n, currency);
   const [input, setInput] = useState<PipelineInputs>(SAMPLE_PIPELINE);
   const [narrative, setNarrative] = useState<NarrativeResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const r = useMemo(() => analysePipeline(input), [input]);
+
+  // A narrative written in another currency is stale.
+  useEffect(() => setNarrative(null), [currency]);
   const color = statusColor[r.status];
 
   const set = <K extends keyof PipelineInputs>(key: K, v: PipelineInputs[K]) => {
@@ -82,7 +91,7 @@ export default function PipelineStoryteller() {
 
   const generate = async () => {
     setLoading(true);
-    setNarrative(await requestNarrative(input, r));
+    setNarrative(await requestNarrative(input, r, currency));
     setLoading(false);
   };
 
@@ -99,7 +108,10 @@ export default function PipelineStoryteller() {
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug">
             Will this quarter's pipeline <span className="text-primary">cover the number</span>?
           </h1>
-          <div className="mt-3 text-xs uppercase tracking-[0.2em] text-label-low">v1.1 · sample data loaded · edit any figure</div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+            <span className="text-xs uppercase tracking-[0.2em] text-label-low">v1.1 · sample data loaded · edit any figure</span>
+            <CurrencySwitch />
+          </div>
           <p className="mt-4 text-sm md:text-base text-label-low leading-relaxed">
             Weighted pipeline by stage, adjusted for the days left in the quarter, then turned into a short narrative a
             VP of Revenue can act on.
@@ -108,9 +120,9 @@ export default function PipelineStoryteller() {
 
         {/* Headline metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border-faint border border-border-faint mb-8">
-          <Metric label="Still needed" value={fmtEUR(r.remainingTarget)} sub={`${fmtEUR(r.quarterTarget)} target − ${fmtEUR(input.closedWon)} won`} />
-          <Metric label="Can close this Q" value={fmtEUR(r.inQuarterPipeline)} sub={`weighted, ${days} days left`} />
-          <Metric label="Gap" value={fmtEUR(r.gap)} sub={r.dealsNeeded ? `≈ ${r.dealsNeeded} deals at ${fmtEUR(input.avgDealSize)}` : "covered"} />
+          <Metric label="Still needed" value={money(r.remainingTarget)} sub={`${money(r.quarterTarget)} target − ${money(input.closedWon)} won`} />
+          <Metric label="Can close this Q" value={money(r.inQuarterPipeline)} sub={`weighted, ${days} days left`} />
+          <Metric label="Gap" value={money(r.gap)} sub={r.dealsNeeded ? `≈ ${r.dealsNeeded} deals at ${money(input.avgDealSize)}` : "covered"} />
           <Metric label="Status" value={r.status} sub={`${Math.round(r.coverage * 100)}% coverage`} color={color} />
         </div>
 
@@ -134,16 +146,16 @@ export default function PipelineStoryteller() {
             >
               <div className="space-y-5">
                 <label className="block">
-                  <Label tooltip="Annual new-business quota. The quarter target is a quarter of it.">Annual quota (€)</Label>
-                  <NumberField value={input.annualQuota} min={0} onChange={(n) => set("annualQuota", n)} className={inputClass} ariaLabel="Annual quota in euros" />
+                  <Label tooltip="Annual new-business quota. The quarter target is a quarter of it.">Annual quota ({sym})</Label>
+                  <NumberField value={input.annualQuota} min={0} onChange={(n) => set("annualQuota", n)} className={inputClass} ariaLabel={`Annual quota in ${currency}`} />
                 </label>
                 <label className="block">
-                  <Label tooltip="Already closed-won this quarter. Coverage is measured against what is still needed.">Closed-won this quarter (€)</Label>
-                  <NumberField value={input.closedWon} min={0} onChange={(n) => set("closedWon", n)} className={inputClass} ariaLabel="Closed-won this quarter in euros" />
+                  <Label tooltip="Already closed-won this quarter. Coverage is measured against what is still needed.">Closed-won this quarter ({sym})</Label>
+                  <NumberField value={input.closedWon} min={0} onChange={(n) => set("closedWon", n)} className={inputClass} ariaLabel={`Closed-won this quarter in ${currency}`} />
                 </label>
                 <label className="block">
-                  <Label>Average deal size (€)</Label>
-                  <NumberField value={input.avgDealSize} min={0} onChange={(n) => set("avgDealSize", n)} className={inputClass} ariaLabel="Average deal size in euros" />
+                  <Label>Average deal size ({sym})</Label>
+                  <NumberField value={input.avgDealSize} min={0} onChange={(n) => set("avgDealSize", n)} className={inputClass} ariaLabel={`Average deal size in ${currency}`} />
                 </label>
                 <label className="block">
                   <Label hint={`${input.quarterProgress}% · ${days} days left`}>Quarter elapsed</Label>
@@ -166,8 +178,8 @@ export default function PipelineStoryteller() {
                   <div key={s.id} className="space-y-3 pb-5 border-b border-border-faint last:border-0 last:pb-0">
                     <div className="text-sm font-semibold text-foreground">{STAGE_LABELS[s.id]}</div>
                     <label className="block">
-                      <Label>Open value (€)</Label>
-                      <NumberField value={s.value} min={0} onChange={(n) => setStage(s.id, "value", n)} className={inputClass} ariaLabel={`${STAGE_LABELS[s.id]} open value in euros`} />
+                      <Label>Open value ({sym})</Label>
+                      <NumberField value={s.value} min={0} onChange={(n) => setStage(s.id, "value", n)} className={inputClass} ariaLabel={`${STAGE_LABELS[s.id]} open value in ${currency}`} />
                     </label>
                     <label className="block">
                       <Label hint={`${s.winRate}%`} tooltip="Probability that a deal in this stage closes-won.">Win rate</Label>
@@ -197,7 +209,7 @@ export default function PipelineStoryteller() {
                     <div className="flex justify-between gap-3 text-xs mb-1.5">
                       <span className="uppercase tracking-[0.1em] text-foreground/85">{s.label}</span>
                       <span className="font-mono-tabular text-label-mid">
-                        <span className="text-primary">{fmtEUR(s.inQuarter)}</span> / {fmtEUR(s.weighted)} / {fmtEUR(s.value)}
+                        <span className="text-primary">{money(s.inQuarter)}</span> / {money(s.weighted)} / {money(s.value)}
                       </span>
                     </div>
                     <div className="relative h-3 bg-background">
@@ -233,11 +245,11 @@ export default function PipelineStoryteller() {
                 <Metric
                   label="Timing slip"
                   value={r.biggestSlip ? r.biggestSlip.label : "None"}
-                  sub={r.biggestSlip ? `${fmtEUR(r.biggestSlip.slip)} weighted likely to close after quarter end` : "every stage's cycle fits in the time left"}
+                  sub={r.biggestSlip ? `${money(r.biggestSlip.slip)} weighted likely to close after quarter end` : "every stage's cycle fits in the time left"}
                 />
-                <Metric label="Raw pipeline" value={`${r.rawCoverage.toFixed(1)}×`} sub={`${fmtEUR(r.totalPipeline)} open vs ${fmtEUR(r.remainingTarget)} needed`} />
-                <Metric label="Weighted pipeline" value={fmtEUR(r.weightedPipeline)} sub={`${fmtEUR(r.totalSlip)} of it lands after this quarter`} />
-                <Metric label="Deals to close the gap" value={r.dealsNeeded ? String(r.dealsNeeded) : "None"} sub={r.dealsNeeded ? `at ${fmtEUR(input.avgDealSize)}, already late-stage` : "gap covered"} />
+                <Metric label="Raw pipeline" value={`${r.rawCoverage.toFixed(1)}×`} sub={`${money(r.totalPipeline)} open vs ${money(r.remainingTarget)} needed`} />
+                <Metric label="Weighted pipeline" value={money(r.weightedPipeline)} sub={`${money(r.totalSlip)} of it lands after this quarter`} />
+                <Metric label="Deals to close the gap" value={r.dealsNeeded ? String(r.dealsNeeded) : "None"} sub={r.dealsNeeded ? `at ${money(input.avgDealSize)}, already late-stage` : "gap covered"} />
               </div>
             </Panel>
 

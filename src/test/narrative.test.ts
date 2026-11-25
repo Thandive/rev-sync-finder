@@ -44,6 +44,7 @@ describe("validatePayload", () => {
 
   it("rejects out-of-range numbers and oversized arrays", () => {
     expect(validatePayload({ ...payload, coverage: -1 })).toBe("Invalid coverage.");
+    expect(validatePayload({ ...payload, currency: "BTC" })).toBe("Invalid currency.");
     expect(validatePayload({ ...payload, stages: Array(9).fill(payload.stages[0]) })).toBe("Invalid stages.");
     expect(validatePayload(null)).toBe("Body must be a JSON object.");
   });
@@ -53,7 +54,9 @@ describe("buildPrompt", () => {
   it("contains only formatted numbers and fixed stage names", () => {
     const p = buildPrompt(validatePayload(payload) as Exclude<ReturnType<typeof validatePayload>, string>);
     expect(p).toContain("Quarter status: AT RISK");
-    expect(p).toContain("Discovery: €800K open, 10% win rate");
+    expect(p).toContain("Discovery: $800K open, 10% win rate");
+    const eur = buildPrompt(validatePayload({ ...payload, currency: "EUR" }) as Exclude<ReturnType<typeof validatePayload>, string>);
+    expect(eur).toContain("Discovery: €800K open");
     expect(p).not.toContain("StaySync");
   });
 });
@@ -139,20 +142,22 @@ describe("handler", () => {
 describe("requestNarrative (client)", () => {
   it("uses the AI text when the function answers", async () => {
     const f = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ text: "AI story." }) });
-    const out = await requestNarrative(SAMPLE_PIPELINE, results, f as unknown as typeof fetch);
+    const out = await requestNarrative(SAMPLE_PIPELINE, results, "USD", f as unknown as typeof fetch);
     expect(out).toEqual({ text: "AI story.", source: "ai" });
     const sent = JSON.parse(f.mock.calls[0][1].body);
     expect(Object.keys(sent)).not.toContain("prompt");
+    expect(sent.currency).toBe("USD");
   });
 
   it("falls back to the labelled rule-based narrative on any failure", async () => {
     const down = vi.fn().mockRejectedValue(new Error("offline"));
-    const out = await requestNarrative(SAMPLE_PIPELINE, results, down as unknown as typeof fetch);
+    const out = await requestNarrative(SAMPLE_PIPELINE, results, "GBP", down as unknown as typeof fetch);
     expect(out.source).toBe("rules");
     expect(out.text).toMatch(/^We are at risk/);
+    expect(out.text).toContain("£");
 
     const notConfigured = vi.fn().mockResolvedValue({ ok: false, status: 503 });
-    const out2 = await requestNarrative(SAMPLE_PIPELINE, results, notConfigured as unknown as typeof fetch);
+    const out2 = await requestNarrative(SAMPLE_PIPELINE, results, "USD", notConfigured as unknown as typeof fetch);
     expect(out2.reason).toBe("AI not configured");
   });
 });

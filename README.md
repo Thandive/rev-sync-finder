@@ -9,6 +9,8 @@ Free Revenue Operations tools for B2B SaaS teams. Live at **[rev-sync.app](https
 
 Both tools run in the browser and store nothing. The one exception is the optional AI narrative, described below.
 
+Amounts display in USD by default, with a switch for EUR and GBP. The switch changes the symbol only: you enter your own figures, so nothing is converted.
+
 Built by [Thandive Sila](https://www.linkedin.com/in/thandive): 8+ years running billing and revenue operations (Salesforce, NetSuite, Zuora) in B2B SaaS. The models encode the failure points I have seen in real Quote-to-Cash stacks.
 
 ---
@@ -39,14 +41,14 @@ The model needs some rates nobody can answer from memory, such as how many late 
 | Uninvoiced deals never billed or collected | 15% |
 | Invoices mismatched: Rarely / Occasionally / Frequently | 1% / 6% / 15% (midpoints of the answer labels) |
 | Net value lost on a mismatched invoice | 5% |
-| ARR written down via informal credit notes: Yes / Ad hoc / No | 0% / 0.3% / 0.8% |
+| ARR written down via informal credit notes: Yes / Ad hoc / No | 0.05% / 0.15% / 0.4% |
 | Revenue lost on a record with bad billing data | 1.5% |
 | Cost of capital | 8% / year |
 | Reconciliation effort: Manual / Partial / Automated | 6 / 3 / 0.5 min per account per month |
 | Systems factor: 1 / 2 / 3+ | × 0.5 / 1 / 1.75 |
-| Loaded hourly cost | €40 |
+| Loaded hourly cost | 40 (in the selected currency) |
 
-With the default inputs (€5M ARR, 10 deals a month at €20K) the estimate is **€69,390 a year, 1.39% of ARR, MEDIUM**.
+With the default inputs ($5M ARR, 10 deals a month at $20K) the estimate is **$61,890 a year, 1.24% of ARR, MEDIUM**.
 
 Exports: PDF and CSV, each with inputs, assumptions, every category with its formula, subtotals and the total.
 
@@ -88,7 +90,7 @@ src/components/             ResultsPanel, AssumptionsPanel, shared UI
 ```sh
 npm install
 npm run dev        # http://localhost:8080 (the AI narrative falls back to rules without the function)
-npm test           # 58 tests: models, exports, the function and the client fallback
+npm test           # 60 tests: models, exports, the function and the client fallback
 npm run lint
 npm run build
 ```

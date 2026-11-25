@@ -7,6 +7,9 @@ import { AppNav } from "@/components/AppNav";
 import { AssumptionsPanel } from "@/components/AssumptionsPanel";
 import { SiteFooter } from "@/components/SiteFooter";
 import { inputClass, sliderClass } from "@/lib/styles";
+import { CurrencySwitch } from "@/components/CurrencySwitch";
+import { CURRENCY_SYMBOL } from "@/lib/currency";
+import { useCurrency } from "@/lib/currency-context";
 import {
   ARR_MAX,
   ARR_MIN,
@@ -16,7 +19,7 @@ import {
   DEFAULT_INPUTS,
   arrToSlider,
   calculate,
-  formatEUR,
+  formatMoney,
   sliderToArr,
 } from "@/lib/calculations";
 
@@ -65,7 +68,7 @@ function SectionHeader({ step, title }: { step: string; title: string }) {
 }
 
 const TOOLTIPS = {
-  arr: "ARR anchors all leakage estimates. The larger the base, the more meaningful even small percentage leaks become in absolute euros.",
+  arr: "ARR anchors all leakage estimates. The larger the base, the more meaningful even small percentage leaks become in absolute terms.",
   dealsPerMonth: "New deals closed per month. Deals × 12 × ACV gives the annual new bookings that flow through the CRM-to-billing handover.",
   acv: "Average annual value of a new contract. Also used to estimate the number of customer accounts (ARR ÷ ACV) that need reconciling.",
   delayDays: "If your billing is triggered by service start date rather than deal close date, use the gap between service start and invoice date instead.",
@@ -78,13 +81,16 @@ const TOOLTIPS = {
 } as const;
 
 const Calculator = () => {
+  const { currency } = useCurrency();
+  const sym = CURRENCY_SYMBOL[currency];
+  const money = (n: number) => formatMoney(n, currency);
   const [inputs, setInputs] = useState<CalculatorInputs>(DEFAULT_INPUTS);
   const [assumptions, setAssumptions] = useState<Assumptions>(DEFAULT_ASSUMPTIONS);
 
   const update = <K extends keyof CalculatorInputs>(key: K, value: CalculatorInputs[K]) =>
     setInputs((p) => ({ ...p, [key]: value }));
 
-  const results = useMemo(() => calculate(inputs, assumptions), [inputs, assumptions]);
+  const results = useMemo(() => calculate(inputs, assumptions, currency), [inputs, assumptions, currency]);
 
   return (
     <div className="min-h-screen bg-background text-foreground fade-in p-0">
@@ -95,8 +101,9 @@ const Calculator = () => {
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug">
             Find the revenue leaking out of your <span className="text-primary">Quote-to-Cash</span> stack.
           </h1>
-          <div className="mt-3 text-xs uppercase tracking-[0.2em] text-label-low">
-            v1.1 · runs in your browser · nothing stored
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+            <span className="text-xs uppercase tracking-[0.2em] text-label-low">v1.1 · runs in your browser · nothing stored</span>
+            <CurrencySwitch />
           </div>
           <p className="mt-4 text-sm md:text-base text-label-low leading-relaxed">
             Answer ten questions about your billing operation. The estimate updates as you type, every figure shows
@@ -116,7 +123,7 @@ const Calculator = () => {
             <section>
               <SectionHeader step="Section 01" title="Company Baseline" />
               <div className="space-y-6">
-                <Field label="Annual Recurring Revenue (ARR)" hint={formatEUR(inputs.arr)} tooltip={TOOLTIPS.arr}>
+                <Field label="Annual Recurring Revenue (ARR)" hint={money(inputs.arr)} tooltip={TOOLTIPS.arr}>
                   <input
                     type="range"
                     min={0}
@@ -128,8 +135,8 @@ const Calculator = () => {
                     aria-label="Annual recurring revenue"
                   />
                   <div className="flex justify-between text-xs text-label font-mono-tabular mt-2">
-                    <span>{formatEUR(ARR_MIN)}</span>
-                    <span>{formatEUR(ARR_MAX)}</span>
+                    <span>{money(ARR_MIN)}</span>
+                    <span>{money(ARR_MAX)}</span>
                   </div>
                 </Field>
 
@@ -144,12 +151,12 @@ const Calculator = () => {
                       className={inputClass}
                     />
                   </Field>
-                  <Field label="Average Contract Value (€)" tooltip={TOOLTIPS.acv}>
+                  <Field label={`Average Contract Value (${sym})`} tooltip={TOOLTIPS.acv}>
                     <NumberField
                       value={inputs.acv}
                       min={0}
                       onChange={(n) => update("acv", n)}
-                      ariaLabel="Average contract value in euros"
+                      ariaLabel={`Average contract value in ${currency}`}
                       className={inputClass}
                     />
                   </Field>
@@ -252,7 +259,7 @@ const Calculator = () => {
           <span className="font-semibold" style={{ color: `hsl(var(--risk-${results.riskScore.toLowerCase()}))` }}>
             {results.riskScore}
           </span>{" "}
-          · {formatEUR(results.totalExposure)} / yr
+          · {money(results.totalExposure)} / yr
         </span>
         <span className="text-xs uppercase tracking-[0.16em] text-primary">See breakdown ↓</span>
       </a>
